@@ -21,17 +21,14 @@ public class MyRevoluteJoint
 {
     Joint joint;
 
-    public MyRevoluteJoint(GameWorld gw, Body a, Body b)
+    public MyRevoluteJoint(GameWorld gw, Body a, Body b, float xb, float yb, float xa, float ya)
     {
         RevoluteJointDef jointDef = new RevoluteJointDef();
         jointDef.setBodyA(a);
         jointDef.setBodyB(b);
-        jointDef.setLocalAnchorA(-1f, -1f);
-        jointDef.setLocalAnchorB(-1f, -1f);
-        // add friction
-        jointDef.setEnableMotor(true);
-        jointDef.setMotorSpeed(1.5f);
-        jointDef.setMaxMotorTorque(80f);
+        jointDef.setLocalAnchorA(xa, ya);
+        jointDef.setLocalAnchorB(xb, yb);
+        jointDef.setCollideConnected(true);
         joint = gw.world.createJoint(jointDef);
 
         jointDef.delete();

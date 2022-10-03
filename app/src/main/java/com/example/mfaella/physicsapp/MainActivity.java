@@ -16,6 +16,7 @@ import com.badlogic.androidgames.framework.Audio;
 import com.badlogic.androidgames.framework.Music;
 import com.badlogic.androidgames.framework.impl.AndroidAudio;
 import com.badlogic.androidgames.framework.impl.MultiTouchHandler;
+import com.google.fpl.liquidfun.RevoluteJointDef;
 
 import java.nio.ByteOrder;
 
@@ -28,7 +29,7 @@ public class MainActivity extends Activity {
     private MultiTouchHandler touch;
 
     // boundaries of the physical simulation
-    private static final float XMIN = -10, XMAX = 10, YMIN = -15, YMAX = 15;
+    static final float XMIN = -10, XMAX = 10, YMIN = -15, YMAX = 15;
     static final float bridgeLength = 8;
 
     // the tag used for logging
@@ -61,17 +62,33 @@ public class MainActivity extends Activity {
         GameWorld gw = new GameWorld(physicalSize, screenSize, this);
 
         /* adding road */
-        gw.addGameObject(new Road(gw, XMIN, -bridgeLength / 2,0, YMAX));
-        gw.addGameObject(new Road(gw, bridgeLength / 2, XMAX,0, YMAX));
+        GameObject r1 = gw.addGameObject(new Road(gw, XMIN, -bridgeLength / 2,0, YMAX));
+        GameObject r2 = gw.addGameObject(new Road(gw, bridgeLength / 2, XMAX,0, YMAX));
 
         /* adding bridge */
+        GameObject b1 = gw.addGameObject(new Bridge(gw, -bridgeLength / 2, Road.THICKNESS));
+        new MyRevoluteJoint(gw, r1.body, b1.body, -Bridge.width / 2, 0, (- bridgeLength / 2) - Road.THICKNESS, Road.THICKNESS);
+
+        GameObject b2 = gw.addGameObject(new Bridge(gw, Bridge.width-bridgeLength / 2, Road.THICKNESS));
+        new MyRevoluteJoint(gw, b1.body, b2.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
+
+        GameObject b3 = gw.addGameObject(new Bridge(gw, 2*Bridge.width-bridgeLength / 2, Road.THICKNESS));
+        new MyRevoluteJoint(gw, b2.body, b3.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
+
+        GameObject b4 = gw.addGameObject(new Bridge(gw, 3*Bridge.width-bridgeLength / 2, Road.THICKNESS));
+        new MyRevoluteJoint(gw, b3.body, b4.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
+
+        GameObject b5 = gw.addGameObject(new Bridge(gw, 4*Bridge.width-bridgeLength / 2, Road.THICKNESS));
+        new MyRevoluteJoint(gw, b4.body, b5.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
+
+        new MyRevoluteJoint(gw, r2.body, b5.body, Bridge.width / 2, 0, (bridgeLength / 2) + Road.THICKNESS, Road.THICKNESS);
 
 
         // old objects
         /* physic border */
         gw.addGameObject(new EnclosureGO(gw, XMIN, XMAX, YMIN, YMAX));
         /* adding objects */
-        gw.addGameObject(new DynamicBoxGO(gw, 0, 0));
+        //gw.addGameObject(new DynamicBoxGO(gw, 0, 0));
         //gw.addGameObject(new DynamicTriangleGO(gw, 7, 3));
         //gw.addGameObject(new MarblesGO(gw, 0, 5));
         /* adding speicial objects */

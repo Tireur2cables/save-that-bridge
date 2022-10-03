@@ -15,7 +15,7 @@ import com.google.fpl.liquidfun.PolygonShape;
  */
 public class Road extends GameObject
 {
-    private static final float THICKNESS = 1;
+    static final float THICKNESS = 1;
 
     private Paint paint = new Paint();
     private float xmin, xmax, ymin, ymax;

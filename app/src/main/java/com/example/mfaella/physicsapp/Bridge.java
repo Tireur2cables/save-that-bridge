@@ -21,7 +21,7 @@ import com.google.fpl.liquidfun.PolygonShape;
  */
 public class Bridge extends GameObject
 {
-    private static final float width = MainActivity.bridgeLength / 4, height = 2.5f, density = 0.5f;
+    static final float width = MainActivity.bridgeLength / 4, height = MainActivity.YMAX / 40, density = 0.5f;
     private static float screen_semi_width, screen_semi_height;
     private static int instances = 0;
 
@@ -76,7 +76,7 @@ public class Bridge extends GameObject
 
         // Log.i("Dragme", "size: " + bitmap.getWidth() + ", " + bitmap.getHeight());
         // Note: top <= bottom
-        src.set(0, 0, 76, 76);
+        src.set(0, 0, 512, 512); // size of image to load
     }
 
     private final Rect src = new Rect();
