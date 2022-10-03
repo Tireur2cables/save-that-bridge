@@ -29,7 +29,7 @@ public class MainActivity extends Activity {
 
     // boundaries of the physical simulation
     private static final float XMIN = -10, XMAX = 10, YMIN = -15, YMAX = 15;
-    private static final float bridgeLength = 8;
+    static final float bridgeLength = 8;
 
     // the tag used for logging
     public static String TAG;
