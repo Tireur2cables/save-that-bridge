@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
 
         /* adding road */
         gw.addGameObject(new Road(gw, XMIN, -bridgeLength / 2,0, YMAX));
-        //gw.addGameObject(new Road(gw, bridgeLength / 2, XMAX,0, YMAX));
+        gw.addGameObject(new Road(gw, bridgeLength / 2, XMAX,0, YMAX));
 
         /* adding bridge */
 

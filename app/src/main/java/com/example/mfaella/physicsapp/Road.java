@@ -39,23 +39,24 @@ public class Road extends GameObject
 
         PolygonShape box = new PolygonShape();
         // top
-        box.setAsBox(xmax-xmin, 0, xmin + (xmax-xmin)/2, ymin+THICKNESS, 0); // last is rotation angle
+        box.setAsBox(- THICKNESS + (xmax - xmin) / 2, 0, xmin + (xmax-xmin)/2, ymin+THICKNESS, 0); // last is rotation angle
+        body.createFixture(box, 0); // no density needed
+        // right
+        box.setAsBox(0, - THICKNESS + (ymax - ymin) / 2, xmax - THICKNESS, ymin + (ymax-ymin)/2, 0); // last is rotation angle
+        body.createFixture(box, 0); // no density needed
+        // left
+        // right
+        box.setAsBox(0, - THICKNESS + (ymax - ymin) / 2, xmin + THICKNESS, ymin + (ymax-ymin)/2, 0); // last is rotation angle
         body.createFixture(box, 0); // no density needed
         /*
         // bottom
         box.setAsBox(xmax-xmin, 0, xmin+(xmax-xmin)/2, ymax, 0);
         body.createFixture(box, 0);
-        // left
-        box.setAsBox(0, ymax-ymin, xmin, ymin+(ymax-ymin)/2, 0);
-        body.createFixture(box, 0);
-        // right
-        box.setAsBox(0, ymax-ymin, xmax, ymin+(ymax - ymin) / 2, 0);
-        body.createFixture(box, 0);
         */
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.icona, o);
+        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.test, o);
 
         // clean up native objects
         bdef.delete();
