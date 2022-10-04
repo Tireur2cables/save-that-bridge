@@ -97,6 +97,9 @@ public class MainActivity extends Activity {
         //new MyRevoluteJoint(gw, a.body, b.body);
         //new MyPrismaticJoint(gw, a.body, b.body);
 
+        /* adding buttons */
+        GameObject button1 = gw.addGameObject(new Button(gw, XMAX-4, XMAX-1, YMIN+1, YMIN+4));
+
         // Just for info
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         float refreshRate = display.getRefreshRate();
