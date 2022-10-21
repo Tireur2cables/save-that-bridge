@@ -26,10 +26,10 @@ public class EnclosureGO extends GameObject
     {
         super(gw);
         this.xmin = xmin; this.xmax = xmax; this.ymin = ymin; this.ymax = ymax;
-        this.screen_xmin = gw.toPixelsX(xmin+THICKNESS);
-        this.screen_xmax = gw.toPixelsX(xmax-THICKNESS);
-        this.screen_ymin = gw.toPixelsY(ymin+THICKNESS);
-        this.screen_ymax = gw.toPixelsY(ymax-THICKNESS);
+        this.screen_xmin = gw.worldToFrameBufferX(xmin+THICKNESS);
+        this.screen_xmax = gw.worldToFrameBufferX(xmax-THICKNESS);
+        this.screen_ymin = gw.worldToFrameBufferY(ymin+THICKNESS);
+        this.screen_ymax = gw.worldToFrameBufferY(ymax-THICKNESS);
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();

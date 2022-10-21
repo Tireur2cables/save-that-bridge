@@ -3,6 +3,7 @@ package com.example.mfaella.physicsapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -28,10 +29,6 @@ public class MainActivity extends Activity {
     private Music backgroundMusic;
     private MultiTouchHandler touch;
 
-    // boundaries of the physical simulation
-    static final float XMIN = -10, XMAX = 10, YMIN = -15, YMAX = 15;
-    static final float bridgeLength = 8;
-
     // the tag used for logging
     public static String TAG;
 
@@ -39,11 +36,21 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /* load physics library */
         System.loadLibrary("liquidfun");
         System.loadLibrary("liquidfun_jni");
 
+        /* Load constants */
+        Resources res = this.getResources();
+        // boundaries of the physical simulation
+        float xmin = res.getInteger(R.integer.world_xmin);
+        float xmax = res.getInteger(R.integer.world_xmax);
+        float ymin = res.getInteger(R.integer.world_ymin);
+        float ymax = res.getInteger(R.integer.world_ymax);
+        float bridgeLength = res.getInteger(R.integer.bridge_world_length);
         TAG = getString(R.string.app_name);
 
+        /* Request all the screen to Android  */
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -57,38 +64,34 @@ public class MainActivity extends Activity {
         // Game world
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        Box physicalSize = new Box(XMIN, YMIN, XMAX, YMAX),
+        Box worldSize = new Box(xmin, ymin, xmax, ymax),
             screenSize   = new Box(0, 0, metrics.widthPixels, metrics.heightPixels);
-        GameWorld gw = new GameWorld(physicalSize, screenSize, this);
+        GameWorld gw = new GameWorld(worldSize, screenSize, this);
 
         /* adding road */
-        GameObject r1 = gw.addGameObject(new Road(gw, XMIN, -bridgeLength / 2,0, YMAX));
-        GameObject r2 = gw.addGameObject(new Road(gw, bridgeLength / 2, XMAX,0, YMAX));
+        GameObject r1 = gw.addGameObject(new Road(gw, xmin, -bridgeLength / 2,0, ymax));
+        GameObject r2 = gw.addGameObject(new Road(gw, bridgeLength / 2, xmax,0, ymax));
 
         /* adding bridge */
-        GameObject b1 = gw.addGameObject(new Bridge(gw, -bridgeLength / 2, Road.THICKNESS));
-        new MyRevoluteJoint(gw, r1.body, b1.body, -Bridge.width / 2, 0, (- bridgeLength / 2) - Road.THICKNESS, Road.THICKNESS);
-
-        GameObject b2 = gw.addGameObject(new Bridge(gw, Bridge.width-bridgeLength / 2, Road.THICKNESS));
-        new MyRevoluteJoint(gw, b1.body, b2.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
-
-        GameObject b3 = gw.addGameObject(new Bridge(gw, 2*Bridge.width-bridgeLength / 2, Road.THICKNESS));
-        new MyRevoluteJoint(gw, b2.body, b3.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
-
-        GameObject b4 = gw.addGameObject(new Bridge(gw, 3*Bridge.width-bridgeLength / 2, Road.THICKNESS));
-        new MyRevoluteJoint(gw, b3.body, b4.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
-
-        GameObject b5 = gw.addGameObject(new Bridge(gw, 4*Bridge.width-bridgeLength / 2, Road.THICKNESS));
-        new MyRevoluteJoint(gw, b4.body, b5.body, - Bridge.width / 2, 0, Bridge.width / 2, 0);
-
-        new MyRevoluteJoint(gw, r2.body, b5.body, Bridge.width / 2, 0, (bridgeLength / 2) + Road.THICKNESS, Road.THICKNESS);
+        int numBridgePlank = 5; // level 1 : 5 planks
+        GameObject[] myBridge = new GameObject[numBridgePlank];
+        float plankWidth = bridgeLength / numBridgePlank;
+        float plankHeight = ymax / 40 ; // thin enough
+        // create planks
+        for (int i = 0; i < myBridge.length; i++)
+            myBridge[i] = gw.addGameObject(new Bridge(gw, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
+        // create joints
+        new MyRevoluteJoint(gw, r1.body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, 0);
+        for (int i = 0; i < myBridge.length - 1; i++)
+            new MyRevoluteJoint(gw, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2);
+        new MyRevoluteJoint(gw, r2.body, myBridge[myBridge.length - 1].body, plankWidth / 2, -plankHeight / 2, bridgeLength / 2, 0);
 
 
         // old objects
         /* physic border */
-        gw.addGameObject(new EnclosureGO(gw, XMIN, XMAX, YMIN, YMAX));
+        gw.addGameObject(new EnclosureGO(gw, xmin, xmax, ymin, ymax));
         /* adding objects */
-        //gw.addGameObject(new DynamicBoxGO(gw, 0, 0));
+        gw.addGameObject(new DynamicBoxGO(gw, 0, 0));
         //gw.addGameObject(new DynamicTriangleGO(gw, 7, 3));
         //gw.addGameObject(new MarblesGO(gw, 0, 5));
         /* adding speicial objects */
@@ -98,7 +101,7 @@ public class MainActivity extends Activity {
         //new MyPrismaticJoint(gw, a.body, b.body);
 
         /* adding buttons */
-        GameObject button1 = gw.addGameObject(new Button(gw, XMAX-4, XMAX-1, YMIN+1, YMIN+4));
+        GameObject button1 = gw.addGameObject(new Button(gw, xmax-4, xmax-1, ymin+1, ymin+4));
 
         // Just for info
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();

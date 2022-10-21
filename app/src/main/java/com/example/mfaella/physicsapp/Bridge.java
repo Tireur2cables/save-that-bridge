@@ -14,29 +14,22 @@ import com.google.fpl.liquidfun.Fixture;
 import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.PolygonShape;
 
-/**
- * A moving box.
- *
- * Created by mfaella on 27/02/16.
- */
-public class Bridge extends GameObject
-{
-    static final float width = MainActivity.bridgeLength / 4, height = MainActivity.YMAX / 40, density = 0.5f;
+public class Bridge extends GameObject  {
+    private static final float density = 0.5f;
     private static float screen_semi_width, screen_semi_height;
     private static int instances = 0;
 
     private final Canvas canvas;
     private final Paint paint = new Paint();
 
-    public Bridge(GameWorld gw, float x, float y)
-    {
+    public Bridge(GameWorld gw, float x, float y, float width, float height) {
         super(gw);
 
         instances++;
 
         this.canvas = new Canvas(gw.buffer); // Is this needed?
-        this.screen_semi_width = gw.toPixelsXLength(width)/2;
-        this.screen_semi_height = gw.toPixelsYLength(height)/2;
+        screen_semi_width = gw.toPixelsXLength(width) / 2;
+        screen_semi_height = gw.toPixelsYLength(height) / 2;
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
@@ -45,7 +38,7 @@ public class Bridge extends GameObject
         // a body
         this.body = gw.world.createBody(bdef);
         body.setSleepingAllowed(false);
-        this.name = "Box" + instances;
+        this.name = "Bridge" + instances;
         body.setUserData(this);
 
         PolygonShape box = new PolygonShape();
@@ -72,11 +65,8 @@ public class Bridge extends GameObject
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.icona, o);
+        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.wood, o);
 
-        // Log.i("Dragme", "size: " + bitmap.getWidth() + ", " + bitmap.getHeight());
-        // Note: top <= bottom
-        src.set(0, 0, 512, 512); // size of image to load
     }
 
     private final Rect src = new Rect();
@@ -92,9 +82,7 @@ public class Bridge extends GameObject
         dest.right = x + screen_semi_width;
         dest.top = y - screen_semi_height;
         // Sprite
-        canvas.drawBitmap(bitmap, src, dest, null);
-        // Simple box
-        // canvas.drawRect(x- screen_semi_width, y- screen_semi_height, x + screen_semi_width, y + screen_semi_height, paint);
+        canvas.drawBitmap(bitmap, null, dest, null);
         canvas.restore();
     }
 }

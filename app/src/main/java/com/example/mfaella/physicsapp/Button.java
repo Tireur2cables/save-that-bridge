@@ -24,10 +24,10 @@ public class Button extends GameObject
     {
         super(gw);
         this.xmin = xmin; this.xmax = xmax; this.ymin = ymin; this.ymax = ymax;
-        this.screen_xmin = gw.toPixelsX(xmin);
-        this.screen_xmax = gw.toPixelsX(xmax);
-        this.screen_ymin = gw.toPixelsY(ymin);
-        this.screen_ymax = gw.toPixelsY(ymax);
+        this.screen_xmin = gw.worldToFrameBufferX(xmin);
+        this.screen_xmax = gw.worldToFrameBufferX(xmax);
+        this.screen_ymin = gw.worldToFrameBufferY(ymin);
+        this.screen_ymax = gw.worldToFrameBufferY(ymax);
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();

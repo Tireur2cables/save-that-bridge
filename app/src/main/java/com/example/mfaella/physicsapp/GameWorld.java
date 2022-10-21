@@ -1,6 +1,7 @@
 package com.example.mfaella.physicsapp;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -28,7 +29,7 @@ import java.util.List;
  */
 public class GameWorld {
     // Rendering
-    final static int bufferWidth = 400, bufferHeight = 600;    // actual pixels
+    private final int bufferWidth, bufferHeight;    // actual pixels
     Bitmap buffer;
     private Canvas canvas;
     private Paint particlePaint;
@@ -59,7 +60,12 @@ public class GameWorld {
         this.physicalSize = physicalSize;
         this.screenSize = screenSize;
         this.activity = theActivity;
-        this.buffer = Bitmap.createBitmap(bufferWidth, bufferHeight, Bitmap.Config.ARGB_8888);
+        /* Load constants */
+        Resources res =  this.activity.getResources();
+        this.bufferWidth = res.getInteger(R.integer.frame_buffer_width);
+        this.bufferHeight = res.getInteger(R.integer.frame_buffer_height);
+
+        this.buffer = Bitmap.createBitmap(this.bufferWidth, this.bufferHeight, Bitmap.Config.ARGB_8888);
         this.world = new World(0, 10);  // gravity vector
 
         this.currentView = physicalSize;
@@ -136,29 +142,54 @@ public class GameWorld {
 
     // Conversions between screen coordinates and physical coordinates
 
-    public float toMetersX(float x) { return currentView.xmin + x * (currentView.width/screenSize.width); }
-    public float toMetersY(float y) { return currentView.ymin + y * (currentView.height/screenSize.height); }
+    /**
+     * from screen x to physics world x
+     * @param x screen x
+     * @return world (physics) x
+     */
+    public float screenToWorldX(float x) {
+        return currentView.xmin + x * (currentView.width / screenSize.width);
+    }
+    /**
+     * from screen y to physics world y
+     * @param y screen y
+     * @return world (physics) y
+     */
+    public float screenToWorldY(float y) {
+        return currentView.ymin + y * (currentView.height / screenSize.height);
+    }
 
-    public float toPixelsX(float x) { return (x-currentView.xmin)/currentView.width*bufferWidth; }
-    public float toPixelsY(float y) { return (y-currentView.ymin)/currentView.height*bufferHeight; }
+    /**
+     * from physics world x to framebuffer x
+     * @param x physics world x
+     * @return framebuffer x
+     */
+    public float worldToFrameBufferX(float x) {
+        return (x-currentView.xmin) / currentView.width*bufferWidth;
+    }
+    /**
+     * from physics world y to framebuffer y
+     * @param y physics world y
+     * @return framebuffer y
+     */
+    public float worldToFrameBufferY(float y) {
+        return (y-currentView.ymin)/currentView.height*bufferHeight;
+    }
 
-    public float toPixelsXLength(float x)
-    {
+    public float toPixelsXLength(float x) {
         return x/currentView.width*bufferWidth;
     }
-    public float toPixelsYLength(float y)
-    {
+
+    public float toPixelsYLength(float y) {
         return y/currentView.height*bufferHeight;
     }
 
-    public synchronized void setGravity(float x, float y)
-    {
+    public synchronized void setGravity(float x, float y) {
         world.setGravity(x, y);
     }
 
     @Override
-    public void finalize()
-    {
+    public void finalize() {
         world.delete();
     }
 

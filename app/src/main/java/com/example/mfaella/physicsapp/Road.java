@@ -13,46 +13,40 @@ import com.google.fpl.liquidfun.PolygonShape;
  *
  * Created by mfaella on 27/02/16.
  */
-public class Road extends GameObject
-{
-    static final float THICKNESS = 1;
+public class Road extends GameObject {
 
     private Paint paint = new Paint();
-    private float xmin, xmax, ymin, ymax;
-    private float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
+    private final float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
+    private static int instances = 0;
 
-    public Road(GameWorld gw, float xmin, float xmax, float ymin, float ymax)
-    {
+    public Road(GameWorld gw, float xmin, float xmax, float ymin, float ymax) {
         super(gw);
-        this.xmin = xmin; this.xmax = xmax; this.ymin = ymin; this.ymax = ymax;
-        this.screen_xmin = gw.toPixelsX(xmin+THICKNESS);
-        this.screen_xmax = gw.toPixelsX(xmax-THICKNESS);
-        this.screen_ymin = gw.toPixelsY(ymin+THICKNESS);
-        this.screen_ymax = gw.toPixelsY(ymax-THICKNESS);
+
+        instances++;
+
+        this.screen_xmin = gw.worldToFrameBufferX(xmin);
+        this.screen_xmax = gw.worldToFrameBufferX(xmax);
+        this.screen_ymin = gw.worldToFrameBufferY(ymin);
+        this.screen_ymax = gw.worldToFrameBufferY(ymax);
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
         // default position is (0,0) and default type is staticBody
         this.body = gw.world.createBody(bdef);
-        this.name = "Road";
+        this.name = "Road" + instances;
         body.setUserData(this);
 
         PolygonShape box = new PolygonShape();
         // top
-        box.setAsBox(- THICKNESS + (xmax - xmin) / 2, 0, xmin + (xmax-xmin)/2, ymin+THICKNESS, 0); // last is rotation angle
+        box.setAsBox((xmax - xmin) / 2, 0, xmin + (xmax-xmin)/2, ymin, 0); // last is rotation angle
         body.createFixture(box, 0); // no density needed
         // right
-        box.setAsBox(0, - THICKNESS + (ymax - ymin) / 2, xmax - THICKNESS, ymin + (ymax-ymin)/2, 0); // last is rotation angle
+        box.setAsBox(0, (ymax - ymin) / 2, xmax, ymin + (ymax-ymin) / 2, 0); // last is rotation angle
         body.createFixture(box, 0); // no density needed
         // left
-        // right
-        box.setAsBox(0, - THICKNESS + (ymax - ymin) / 2, xmin + THICKNESS, ymin + (ymax-ymin)/2, 0); // last is rotation angle
+        box.setAsBox(0, (ymax - ymin) / 2, xmin, ymin + (ymax-ymin) / 2, 0); // last is rotation angle
         body.createFixture(box, 0); // no density needed
-        /*
-        // bottom
-        box.setAsBox(xmax-xmin, 0, xmin+(xmax-xmin)/2, ymax, 0);
-        body.createFixture(box, 0);
-        */
+
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
@@ -67,10 +61,10 @@ public class Road extends GameObject
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
-        paint.setARGB(255, 0, 255, 255);
-        paint.setStyle(Paint.Style.STROKE);
+        paint.setARGB(255, 64, 64, 64);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setStrokeWidth(2);
         Canvas canvas = new Canvas(buffer);
-        canvas.drawRect(screen_xmin, screen_ymin, screen_xmax, screen_ymax, paint);
+        canvas.drawRect(this.screen_xmin, this.screen_ymin, this.screen_xmax, this.screen_ymax, paint);
     }
 }

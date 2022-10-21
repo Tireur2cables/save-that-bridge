@@ -105,7 +105,7 @@ public class MarblesGO extends GameObject
             }
 
             float x = Float.intBitsToFloat(xint), y = Float.intBitsToFloat(yint);
-            canvas.drawCircle(gw.toPixelsX(x), gw.toPixelsY(y), 6, paint);
+            canvas.drawCircle(gw.worldToFrameBufferX(x), gw.worldToFrameBufferY(y), 6, paint);
         }
     }
 
