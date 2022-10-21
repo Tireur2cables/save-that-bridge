@@ -90,22 +90,19 @@ public class GameWorld {
     }
 
 
-    public synchronized GameObject addGameObject(GameObject obj)
-    {
+    public synchronized GameObject addGameObject(GameObject obj) {
         objects.add(obj);
         return obj;
     }
 
-    public synchronized void addParticleGroup(GameObject obj)
-    {
+    public synchronized void addParticleGroup(GameObject obj) {
         objects.add(obj);
     }
 
     // To distance sounds from each other
     private long timeOfLastSound = 0;
 
-    public synchronized void update(float elapsedTime)
-    {
+    public synchronized void update(float elapsedTime) {
         // advance the physics simulation
         world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
 
@@ -117,8 +114,7 @@ public class GameWorld {
             touchConsumer.consumeTouchEvent(event);
     }
 
-    public synchronized void render()
-    {
+    public synchronized void render() {
         // clear the screen (with black)
         canvas.drawARGB(255, 0, 0, 0);
         for (GameObject obj: objects)

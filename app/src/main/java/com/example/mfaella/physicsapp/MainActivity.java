@@ -14,6 +14,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.badlogic.androidgames.framework.Audio;
+import com.badlogic.androidgames.framework.Game;
 import com.badlogic.androidgames.framework.Music;
 import com.badlogic.androidgames.framework.impl.AndroidAudio;
 import com.badlogic.androidgames.framework.impl.MultiTouchHandler;
@@ -69,8 +70,10 @@ public class MainActivity extends Activity {
         GameWorld gw = new GameWorld(worldSize, screenSize, this);
 
         /* adding road */
-        GameObject r1 = gw.addGameObject(new Road(gw, xmin, -bridgeLength / 2,0, ymax));
-        GameObject r2 = gw.addGameObject(new Road(gw, bridgeLength / 2, xmax,0, ymax));
+        int numRoads = 2;
+        GameObject[] myRoad = new GameObject[numRoads];
+        myRoad[0] = gw.addGameObject(new Road(gw, xmin, -bridgeLength / 2,0, ymax));
+        myRoad[1] = gw.addGameObject(new Road(gw, bridgeLength / 2, xmax,0, ymax));
 
         /* adding bridge */
         int numBridgePlank = 5; // level 1 : 5 planks
@@ -81,11 +84,14 @@ public class MainActivity extends Activity {
         for (int i = 0; i < myBridge.length; i++)
             myBridge[i] = gw.addGameObject(new Bridge(gw, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
         // create joints
-        new MyRevoluteJoint(gw, r1.body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, 0);
+        MyRevoluteJoint[] myJoints = new MyRevoluteJoint[numRoads + numBridgePlank];
+        myJoints[0] = new MyRevoluteJoint(gw, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, 0);
         for (int i = 0; i < myBridge.length - 1; i++)
-            new MyRevoluteJoint(gw, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2);
-        new MyRevoluteJoint(gw, r2.body, myBridge[myBridge.length - 1].body, plankWidth / 2, -plankHeight / 2, bridgeLength / 2, 0);
+            myJoints[i+1] = new MyRevoluteJoint(gw, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2);
+        myJoints[numRoads + numBridgePlank - 1] = new MyRevoluteJoint(gw, myRoad[1].body, myBridge[myBridge.length - 1].body, plankWidth / 2, -plankHeight / 2, bridgeLength / 2, 0);
 
+        /* remove joints */
+        //gw.world.destroyJoint(myJoints[0].joint);
 
         // old objects
         /* physic border */

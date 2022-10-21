@@ -17,12 +17,10 @@ import com.google.fpl.liquidfun.Vec2;
  *
  * Created by mfaella on 27/02/16.
  */
-public class MyRevoluteJoint
-{
+public class MyRevoluteJoint {
     Joint joint;
 
-    public MyRevoluteJoint(GameWorld gw, Body a, Body b, float xb, float yb, float xa, float ya)
-    {
+    public MyRevoluteJoint(GameWorld gw, Body a, Body b, float xb, float yb, float xa, float ya) {
         RevoluteJointDef jointDef = new RevoluteJointDef();
         jointDef.setBodyA(a);
         jointDef.setBodyB(b);

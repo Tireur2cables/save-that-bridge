@@ -45,8 +45,7 @@ public class MarblesGO extends GameObject
         discoverEndianness();
     }
 
-    public MarblesGO(GameWorld gw, float x, float y)
-    {
+    public MarblesGO(GameWorld gw, float x, float y) {
         super(gw);
 
         this.canvas = new Canvas(gw.buffer);
