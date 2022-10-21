@@ -8,12 +8,20 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class AndroidFastRenderView extends SurfaceView implements Runnable {
     private Bitmap framebuffer;
     private Thread renderThread = null;
     private SurfaceHolder holder;
     private GameWorld gameworld;
     private volatile boolean running = false;
+    boolean spawnBomb = false;
+    boolean playerFinish = false;
+    boolean verifLevel = false;
+    boolean win = false;
+    boolean verifWin = false;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -47,6 +55,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     public void run() {
         Rect dstRect = new Rect();
         long startTime = System.nanoTime(), fpsTime = startTime, frameCounter = 0;
+        int tmp = 5;
 
         /*** The Game Main Loop ***/
         while (running) {
@@ -60,6 +69,30 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             float deltaTime = (currentTime-startTime) / 1000000000f,
                   fpsDeltaTime = (currentTime-fpsTime) / 1000000000f;
             startTime = currentTime;
+
+            if (this.spawnBomb) {
+                this.gameworld.addGameObject(this.gameworld.bombe);
+                this.spawnBomb = false;
+            }
+
+            if (this.playerFinish) {
+                this.gameworld.bombe.explode();
+                this.gameworld.removeGameObject(this.gameworld.bombe);
+                this.playerFinish = false;
+            }
+
+            if (this.verifLevel) {
+                // verif the level
+            }
+
+            if (this.verifWin) {
+                if (this.win) {
+                    // win
+                }
+                else {
+                    // lose
+                }
+            }
 
             gameworld.update(deltaTime);
             gameworld.render();
@@ -77,6 +110,16 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                 Log.d("FastRenderView", "Current FPS = " + frameCounter);
                 frameCounter = 0;
                 fpsTime = currentTime;
+
+                if (tmp != -10)
+                    tmp--;
+                if (tmp == 0)
+                    this.spawnBomb = true;
+                if (tmp == -5) {
+                    this.playerFinish = true;
+                    tmp = -10;
+                }
+
             }
         }
     }
