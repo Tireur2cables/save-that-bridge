@@ -56,6 +56,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
         Rect dstRect = new Rect();
         long startTime = System.nanoTime(), fpsTime = startTime, frameCounter = 0;
         int tmp = 5;
+        this.spawnBomb = true;
 
         /*** The Game Main Loop ***/
         while (running) {
@@ -76,8 +77,11 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             }
 
             if (this.playerFinish) {
-                this.gameworld.bombe.explode();
-                this.gameworld.removeGameObject(this.gameworld.bombe);
+                if (this.gameworld.bombe != null) {
+                    this.gameworld.bombe.explode();
+                    this.gameworld.removeGameObject(this.gameworld.bombe);
+                    this.gameworld.bombe = null;
+                }
                 this.playerFinish = false;
             }
 
@@ -113,9 +117,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
 
                 if (tmp != -10)
                     tmp--;
-                if (tmp == 0)
-                    this.spawnBomb = true;
-                if (tmp == -5) {
+                if (tmp == 0) {
                     this.playerFinish = true;
                     tmp = -10;
                 }

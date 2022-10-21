@@ -98,13 +98,16 @@ public class GameWorld {
 
 
     public synchronized GameObject addGameObject(GameObject obj) {
-        objects.add(obj);
+        this.objects.add(obj);
         return obj;
     }
 
-    public synchronized GameObject removeGameObject(GameObject obj) {
-        objects.remove(obj);
-        return obj;
+    public synchronized boolean removeGameObject(GameObject obj) {
+        boolean res = false;
+        while(objects.remove(obj)) { // remove eventual doubles
+            res = true;
+        }
+        return res;
     }
 
     public synchronized void addParticleGroup(GameObject obj) {
