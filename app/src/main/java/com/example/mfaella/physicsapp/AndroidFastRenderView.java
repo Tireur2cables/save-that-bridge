@@ -17,11 +17,12 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     private SurfaceHolder holder;
     private GameWorld gameworld;
     private volatile boolean running = false;
-    boolean spawnBomb = false;
-    boolean playerFinish = false;
-    boolean verifLevel = false;
-    boolean win = false;
-    boolean verifWin = false;
+    volatile boolean spawnBomb = false;
+    volatile boolean playerFinish = false;
+    volatile boolean verifLevel = false;
+    volatile boolean win = false;
+    volatile boolean verifWin = false;
+    volatile int construct = 0;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -71,6 +72,10 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                   fpsDeltaTime = (currentTime-fpsTime) / 1000000000f;
             startTime = currentTime;
 
+            if (this.construct == this.gameworld.limitconstruct) {
+                this.playerFinish = true;
+            }
+
             if (this.spawnBomb) {
                 this.gameworld.addGameObject(this.gameworld.bombe);
                 this.spawnBomb = false;
@@ -114,14 +119,14 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                 Log.d("FastRenderView", "Current FPS = " + frameCounter);
                 frameCounter = 0;
                 fpsTime = currentTime;
-
+/*
                 if (tmp != -10)
                     tmp--;
                 if (tmp == 0) {
                     this.playerFinish = true;
                     tmp = -10;
                 }
-
+*/
             }
         }
     }

@@ -93,6 +93,8 @@ public class MainActivity extends Activity {
         // give all the joints to gameworld
         gw.setJoints(myJoints);
         gw.createBombe(plankHeight);
+        gw.limitconstruct = 1; // lvl 1 need to be changed
+
 
         // old objects
         /* physic border */

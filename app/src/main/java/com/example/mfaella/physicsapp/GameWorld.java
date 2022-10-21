@@ -60,6 +60,9 @@ public class GameWorld {
     ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>();
     Joint joinToDestroy = null;
 
+    // limit construct
+    int limitconstruct = 0;
+
     final Activity activity; // just for loading bitmaps in game objects
 
     // Arguments are in physical simulation units.

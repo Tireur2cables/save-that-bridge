@@ -6,29 +6,29 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import com.google.fpl.liquidfun.BodyDef;
-import com.google.fpl.liquidfun.PolygonShape;
 
-public class Button extends GameObject
-{
+public class DigitDisplay extends GameObject {
+
+    private static int instances = 0;
 
     private Paint paint = new Paint();
-    private float xmin, xmax, ymin, ymax;
     private float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
+    private int digit;
 
-    public Button(GameWorld gw, float xmin, float xmax, float ymin, float ymax)
-    {
+    public DigitDisplay(GameWorld gw, float xmin, float xmax, float ymin, float ymax, int digit) {
         super(gw);
-        this.xmin = xmin; this.xmax = xmax; this.ymin = ymin; this.ymax = ymax;
+        instances++;
         this.screen_xmin = gw.worldToFrameBufferX(xmin);
         this.screen_xmax = gw.worldToFrameBufferX(xmax);
         this.screen_ymin = gw.worldToFrameBufferY(ymin);
         this.screen_ymax = gw.worldToFrameBufferY(ymax);
+        this.digit = digit;
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
         // default position is (0,0) and default type is staticBody
         this.body = gw.world.createBody(bdef);
-        this.name = "Button";
+        this.name = "DigitDisplay" + instances;
         body.setUserData(this);
 
         // Prevents scaling
