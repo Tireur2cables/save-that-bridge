@@ -111,6 +111,8 @@ public class MainActivity extends Activity {
 
         /* adding buttons */
         GameObject button1 = gw.addGameObject(new Button(gw, xmax-4, xmax-1, ymin+1, ymin+4));
+        /* adding digit display */
+        GameObject dd = gw.addGameObject(new DigitDisplay(gw, xmin+1, xmin+4, ymin+1, ymin+4, gw.limitconstruct));
 
         // Just for info
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
