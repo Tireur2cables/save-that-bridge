@@ -121,9 +121,9 @@ public class GameWorld {
         // advance the physics simulation
         world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
 
-        if (joinToDestroy != null) {
+        if (this.joinToDestroy != null) {
             this.world.destroyJoint(joinToDestroy);
-            joinToDestroy = null;
+            this.joinToDestroy = null;
         }
 
         // Handle collisions
