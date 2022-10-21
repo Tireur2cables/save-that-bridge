@@ -52,25 +52,13 @@ public class Bombe extends GameObject  {
         this.name = "Bombe" + instances;
         body.setUserData(this);
 
-        PolygonShape box = new PolygonShape();
-        box.setAsBox(width / 2, 0);
-        FixtureDef fixturedef = new FixtureDef();
-        fixturedef.setShape(box);
-        fixturedef.setFriction(0.1f);       // default 0.2
-        fixturedef.setRestitution(0.4f);    // default 0
-        fixturedef.setDensity(density);     // default 0
-        body.createFixture(fixturedef);
-
+        // transparent
         int color = Color.argb(0, 0, 0, 0);
         paint.setColor(color);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         // clean up native objects
-        fixturedef.delete();
         bdef.delete();
-        box.delete();
-
-        Fixture f = body.getFixtureList();
 
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
