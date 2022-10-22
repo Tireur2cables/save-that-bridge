@@ -109,6 +109,9 @@ public class MainActivity extends Activity {
         /* adding buttons */
         GameObject button1 = gw.addGameObject(new Button(gw, xmax-4, xmax-1, ymin+1, ymin+4));
 
+        /* Terrorist */
+        GameObject terrorist = gw.addGameObject((new Terrorist(gw,xmin+2, -1)));
+
         // Just for info
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         float refreshRate = display.getRefreshRate();

@@ -75,8 +75,13 @@ public class TouchConsumer {
                 GameObject touchedGO = (GameObject) userData;
                 activePointerID = pointerId;
                 Log.d("MultiTouchHandler", "touched game object " + touchedGO.name);
-                setupMouseJoint(x, y, touchedBody);
-                // splitBox(touchedGO, touchedBody);
+                if(touchedGO instanceof DynamicBoxGO){
+                    setupMouseJoint(x, y, touchedBody);
+                }
+                /*if(touchedGO instanceof Object_wanted){
+                    do special action
+                }*/
+                //splitBox(touchedGO, touchedBody);
             }
         }
     }
