@@ -12,6 +12,7 @@ import com.badlogic.androidgames.framework.Input;
 import com.badlogic.androidgames.framework.Sound;
 import com.badlogic.androidgames.framework.impl.TouchHandler;
 import com.google.fpl.liquidfun.ContactListener;
+import com.google.fpl.liquidfun.Joint;
 import com.google.fpl.liquidfun.ParticleSystem;
 import com.google.fpl.liquidfun.ParticleSystemDef;
 import com.google.fpl.liquidfun.World;
@@ -21,6 +22,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 /**
  * The game objects and the viewport.
@@ -52,6 +54,14 @@ public class GameWorld {
     private static final int VELOCITY_ITERATIONS = 8;
     private static final int POSITION_ITERATIONS = 3;
     private static final int PARTICLE_ITERATIONS = 3;
+
+    // the bombe
+    Bombe bombe;
+    ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>();
+    Joint joinToDestroy = null;
+
+    // limit construct
+    int limitconstruct = 0;
 
     final Activity activity; // just for loading bitmaps in game objects
 
@@ -91,8 +101,16 @@ public class GameWorld {
 
 
     public synchronized GameObject addGameObject(GameObject obj) {
-        objects.add(obj);
+        this.objects.add(obj);
         return obj;
+    }
+
+    public synchronized boolean removeGameObject(GameObject obj) {
+        boolean res = false;
+        while(objects.remove(obj)) { // remove eventual doubles
+            res = true;
+        }
+        return res;
     }
 
     public synchronized void addParticleGroup(GameObject obj) {
@@ -106,6 +124,11 @@ public class GameWorld {
         // advance the physics simulation
         world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
 
+        if (this.joinToDestroy != null) {
+            this.world.destroyJoint(joinToDestroy);
+            this.joinToDestroy = null;
+        }
+
         // Handle collisions
         handleCollisions(contactListener.getCollisions());
 
@@ -116,7 +139,7 @@ public class GameWorld {
 
     public synchronized void render() {
         // clear the screen (with black)
-        canvas.drawARGB(255, 0, 0, 0);
+        canvas.drawARGB(255, 0, 0, 64);
         for (GameObject obj: objects)
             obj.draw(buffer);
         // drawParticles();
@@ -191,5 +214,17 @@ public class GameWorld {
 
     public void setTouchHandler(TouchHandler touchHandler) {
         this.touchHandler = touchHandler;
+    }
+
+    public void setJoints(ArrayList<MyRevoluteJoint> newJoints) {
+        this.myJoints.clear();
+        this.myJoints.addAll(newJoints);
+    }
+
+    public void createBombe(float decalage) {
+        Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint;
+        float bombeX = j.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
+        float bombeY = j.getBodyB().getPositionY() - decalage;
+        this.bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
     }
 }

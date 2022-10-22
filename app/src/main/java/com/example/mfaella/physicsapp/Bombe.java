@@ -1,5 +1,6 @@
 package com.example.mfaella.physicsapp;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -7,25 +8,35 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.google.fpl.liquidfun.BodyDef;
 import com.google.fpl.liquidfun.BodyType;
 import com.google.fpl.liquidfun.Fixture;
 import com.google.fpl.liquidfun.FixtureDef;
+import com.google.fpl.liquidfun.Joint;
 import com.google.fpl.liquidfun.PolygonShape;
 
-public class Bridge extends GameObject  {
-    private static final float density = 1f;
+public class Bombe extends GameObject  {
+
+    private static final float density = 0.1f;
     private static float screen_semi_width, screen_semi_height;
     private static int instances = 0;
 
     private final Canvas canvas;
     private final Paint paint = new Paint();
+    private Joint joint;
+    private GameWorld gw;
 
-    public Bridge(GameWorld gw, float x, float y, float width, float height) {
+    public Bombe(GameWorld gw, float x, float y, Joint joint, Resources res) {
         super(gw);
 
         instances++;
+        this.joint = joint;
+        this.gw = gw;
+        float width = res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin);
+        width /= 15; // well enough
+        float height = width;
 
         this.canvas = new Canvas(gw.buffer); // Is this needed?
         screen_semi_width = gw.toPixelsXLength(width) / 2;
@@ -34,55 +45,47 @@ public class Bridge extends GameObject  {
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
         bdef.setPosition(x, y);
-        bdef.setType(BodyType.dynamicBody);
+        bdef.setType(BodyType.kinematicBody);
         // a body
         this.body = gw.world.createBody(bdef);
         body.setSleepingAllowed(false);
-        this.name = "Bridge" + instances;
+        this.name = "Bombe" + instances;
         body.setUserData(this);
 
-        PolygonShape box = new PolygonShape();
-        box.setAsBox(width / 2, height / 2);
-        FixtureDef fixturedef = new FixtureDef();
-        fixturedef.setShape(box);
-        fixturedef.setFriction(0.1f);       // default 0.2
-        fixturedef.setRestitution(0.4f);    // default 0
-        fixturedef.setDensity(density);     // default 0
-        body.createFixture(fixturedef);
-
-        int color = Color.argb(255, 0, 0, 0);
+        // transparent
+        int color = Color.argb(0, 0, 0, 0);
         paint.setColor(color);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         // clean up native objects
-        fixturedef.delete();
         bdef.delete();
-        box.delete();
-
-        Fixture f = body.getFixtureList();
 
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.wood, o);
-
+        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.bombe, o);
     }
 
     private final Rect src = null;
     private final RectF dest = new RectF();
-    private final Bitmap bitmap;
+    private Bitmap bitmap;
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
         this.canvas.save();
         this.canvas.rotate((float) Math.toDegrees(angle), x, y);
         this.dest.left = x - screen_semi_width;
-        this.dest.bottom = y + screen_semi_height;
+        this.dest.bottom = y;
         this.dest.right = x + screen_semi_width;
-        this.dest.top = y - screen_semi_height;
+        this.dest.top = y - screen_semi_height * 2;
         // Sprite
-        this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
+        this.canvas.drawBitmap(bitmap, src, dest, null);
         this.canvas.restore();
+    }
+
+    public synchronized void explode() {
+        this.gw.joinToDestroy = this.joint;
+        this.joint = null;
     }
 
 }

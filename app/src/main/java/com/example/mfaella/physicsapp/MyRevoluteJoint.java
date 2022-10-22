@@ -28,6 +28,7 @@ public class MyRevoluteJoint {
         jointDef.setLocalAnchorB(xb, yb);
         jointDef.setCollideConnected(true);
         joint = gw.world.createJoint(jointDef);
+        jointDef.setEnableMotor(false);
 
         jointDef.delete();
     }

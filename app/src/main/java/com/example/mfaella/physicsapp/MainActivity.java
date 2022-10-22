@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,6 +19,8 @@ import com.badlogic.androidgames.framework.impl.MultiTouchHandler;
 import com.google.fpl.liquidfun.RevoluteJointDef;
 
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends Activity {
 
@@ -84,23 +84,26 @@ public class MainActivity extends Activity {
         for (int i = 0; i < myBridge.length; i++)
             myBridge[i] = gw.addGameObject(new Bridge(gw, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
         // create joints
-        MyRevoluteJoint[] myJoints = new MyRevoluteJoint[numRoads + numBridgePlank];
-        myJoints[0] = new MyRevoluteJoint(gw, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, 0);
+        ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>(numRoads + numBridgePlank);
+        myJoints.add(new MyRevoluteJoint(gw, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, -plankHeight / 2));
         for (int i = 0; i < myBridge.length - 1; i++)
-            myJoints[i+1] = new MyRevoluteJoint(gw, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2);
-        myJoints[numRoads + numBridgePlank - 1] = new MyRevoluteJoint(gw, myRoad[1].body, myBridge[myBridge.length - 1].body, plankWidth / 2, -plankHeight / 2, bridgeLength / 2, 0);
+            myJoints.add(new MyRevoluteJoint(gw, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, plankHeight / 2, plankWidth / 2, plankHeight / 2));
+        myJoints.add(new MyRevoluteJoint(gw, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2));
 
-        /* remove joints */
-        //gw.world.destroyJoint(myJoints[0].joint);
+        // give all the joints to gameworld
+        gw.setJoints(myJoints);
+        gw.createBombe(plankHeight);
+        gw.limitconstruct = 1; // lvl 1 need to be changed
+
 
         // old objects
         /* physic border */
         gw.addGameObject(new EnclosureGO(gw, xmin, xmax, ymin, ymax));
         /* adding objects */
-        gw.addGameObject(new DynamicBoxGO(gw, 0, 0));
+        //gw.addGameObject(new DynamicBoxGO(gw, 0, 0));
         //gw.addGameObject(new DynamicTriangleGO(gw, 7, 3));
         //gw.addGameObject(new MarblesGO(gw, 0, 5));
-        /* adding speicial objects */
+        /* adding special objects */
         //GameObject a = gw.addGameObject(new DynamicBoxGO(gw, 0, -2));
         //GameObject b = gw.addGameObject(new DynamicBoxGO(gw, 1, -3));
         //new MyRevoluteJoint(gw, a.body, b.body);
@@ -108,6 +111,8 @@ public class MainActivity extends Activity {
 
         /* adding buttons */
         GameObject button1 = gw.addGameObject(new Button(gw, xmax-4, xmax-1, ymin+1, ymin+4));
+        /* adding digit display */
+        GameObject dd = gw.addGameObject(new DigitDisplay(gw, xmin+1, xmin+4, ymin+1, ymin+4, gw.limitconstruct));
 
         /* Terrorist */
         GameObject terrorist = gw.addGameObject((new Terrorist(gw,xmin+2, -1)));
@@ -116,16 +121,6 @@ public class MainActivity extends Activity {
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         float refreshRate = display.getRefreshRate();
         Log.i(getString(R.string.app_name), "Refresh rate =" + refreshRate);
-
-        // Accelerometer
-        /*SensorManager smanager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (smanager.getSensorList(Sensor.TYPE_ACCELEROMETER).isEmpty()) {
-            Log.i(getString(R.string.app_name), "No accelerometer");
-        } else {
-            Sensor accelerometer = smanager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-            if (!smanager.registerListener(new AccelerometerListener(gw), accelerometer, SensorManager.SENSOR_DELAY_NORMAL))
-                Log.i(getString(R.string.app_name), "Could not register accelerometer listener");
-        }*/
 
         // View
         renderView = new AndroidFastRenderView(this, gw);
