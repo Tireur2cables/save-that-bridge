@@ -36,37 +36,18 @@ public class Terrorist extends GameObject{
         BodyDef bdef = new BodyDef();
         bdef.setPosition(x, y);
         bdef.setType(BodyType.kinematicBody);
-        bdef.setLinearVelocity(new Vec2((float) 0.3,0));
+        bdef.setLinearVelocity(new Vec2((float) 3,0));
         // a body
         this.body = gw.world.createBody(bdef);
-        body.setSleepingAllowed(false);
+        body.setSleepingAllowed(true);
         this.name = "Terrorist";
         body.setUserData(this);
 
-        /*PolygonShape box = new PolygonShape();
-        box.setAsBox(width / 2, height / 2);
-        FixtureDef fixturedef = new FixtureDef();
-        fixturedef.setShape(box);
-        fixturedef.setFriction(0.1f);       // default 0.2
-        fixturedef.setRestitution(0.4f);    // default 0
-        body.createFixture(fixturedef);*/
-
-        int green = (int)(255*Math.random());
-        int color = Color.argb(200, 255, green, 0);
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        // clean up native objects
-        /*fixturedef.delete();
-        bdef.delete();
-        box.delete();*/
-
-        Fixture f = body.getFixtureList();
 
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(),
+        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(),
                 R.drawable.ninja_walk, o);
     }
 
@@ -86,9 +67,15 @@ public class Terrorist extends GameObject{
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
         test_timer++;
-        if(test_timer==10){
+        if(test_timer==8){
             UpdateAnimation();
             test_timer=0;
+        }
+        if(this.body.getPositionX()>7){
+            this.body.setLinearVelocity(new Vec2((float) -7,0));
+        }
+        else if(this.body.getPositionX()<-7){
+            this.body.setLinearVelocity(new Vec2((float) 7,0));
         }
         canvas.save();
         canvas.rotate((float) Math.toDegrees(angle), x, y);

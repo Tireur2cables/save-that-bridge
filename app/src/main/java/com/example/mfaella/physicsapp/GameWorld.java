@@ -139,7 +139,7 @@ public class GameWorld {
 
     public synchronized void render() {
         // clear the screen (with black)
-        canvas.drawARGB(255, 0, 0, 64);
+        canvas.drawARGB(255, 55, 199, 255);
         for (GameObject obj: objects)
             obj.draw(buffer);
         // drawParticles();

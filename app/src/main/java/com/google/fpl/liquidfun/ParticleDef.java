@@ -43,8 +43,8 @@ public class ParticleDef {
     liquidfunJNI.ParticleDef_setPosition(swigCPtr, this, x, y);
   }
 
-  public void setColor(int r, int g, int b, int a) {
-    liquidfunJNI.ParticleDef_setColor(swigCPtr, this, r, g, b, a);
+  public void setColor(int r, int g, int b) {
+    liquidfunJNI.ParticleDef_setColor(swigCPtr, this, r, g, b, 255);
   }
 
   public void setFlags(long value) {

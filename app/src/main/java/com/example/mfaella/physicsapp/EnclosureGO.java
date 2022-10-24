@@ -16,7 +16,7 @@ import com.google.fpl.liquidfun.PolygonShape;
  */
 public class EnclosureGO extends GameObject
 {
-    private static final float THICKNESS = 1;
+    private static final float THICKNESS = 0;
 
     private Paint paint = new Paint();
     private float xmin, xmax, ymin, ymax;

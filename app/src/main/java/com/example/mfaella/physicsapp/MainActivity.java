@@ -59,8 +59,9 @@ public class MainActivity extends Activity {
         // Sound
         audio = new AndroidAudio(this);
         CollisionSounds.init(audio);
-        //backgroundMusic = audio.newMusic("soundtrack.mp3");
-        //backgroundMusic.play();
+        backgroundMusic = audio.newMusic("soundtrack.mp3");
+        backgroundMusic.setLooping(true);
+        backgroundMusic.play();
 
         // Game world
         DisplayMetrics metrics = new DisplayMetrics();
@@ -100,7 +101,7 @@ public class MainActivity extends Activity {
         /* physic border */
         gw.addGameObject(new EnclosureGO(gw, xmin, xmax, ymin, ymax));
         /* adding objects */
-        //gw.addGameObject(new DynamicBoxGO(gw, 0, 0));
+        gw.addGameObject(new DynamicBoxGO(gw, 0, 3));
         //gw.addGameObject(new DynamicTriangleGO(gw, 7, 3));
         //gw.addGameObject(new MarblesGO(gw, 0, 5));
         /* adding special objects */

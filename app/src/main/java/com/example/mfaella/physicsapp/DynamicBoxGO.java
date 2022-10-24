@@ -61,7 +61,7 @@ public class DynamicBoxGO extends GameObject
         body.createFixture(fixturedef);
 
         int green = (int)(255*Math.random());
-        int color = Color.argb(200, 255, green, 0);
+        int color = Color.argb(0, 255, green, 0);
         paint.setColor(color);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
@@ -75,14 +75,15 @@ public class DynamicBoxGO extends GameObject
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.icona, o);
+        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.creeper, o);
+
 
         // Log.i("Dragme", "size: " + bitmap.getWidth() + ", " + bitmap.getHeight());
         // Note: top <= bottom
-        src.set(0, 0, 76, 76);
+
     }
 
-    private final Rect src = new Rect();
+    private final Rect src = null;
     private final RectF dest = new RectF();
     private Bitmap bitmap;
 
