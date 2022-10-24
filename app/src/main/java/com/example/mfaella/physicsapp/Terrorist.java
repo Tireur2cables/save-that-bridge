@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.google.fpl.liquidfun.BodyDef;
 import com.google.fpl.liquidfun.BodyType;
@@ -58,25 +59,37 @@ public class Terrorist extends GameObject{
 
 
     private void UpdateAnimation(){
-        if (this.sprite==5){this.sprite=0;}else{sprite++;}
+        if (this.sprite == 5) {
+            this.sprite=0;
+        }
+        else {
+            sprite++;
+        }
         this.src.top=this.sprite*15;
         this.src.bottom=this.sprite*15+15;
     }
 
     private int test_timer=0;
+    private boolean bombePosed = false;
+
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
         test_timer++;
-        if(test_timer==8){
+        if (test_timer==8) {
             UpdateAnimation();
             test_timer=0;
         }
-        if(this.body.getPositionX()>7){
-            this.body.setLinearVelocity(new Vec2((float) -7,0));
+
+        if (this.body.getPositionX() > this.gw.physicalSize.xmax - 1) {
+            //this.body.setLinearVelocity(new Vec2((float) -7,0));
+            AndroidFastRenderView.removeTerrorist = true;
         }
-        else if(this.body.getPositionX()<-7){
-            this.body.setLinearVelocity(new Vec2((float) 7,0));
+
+        if (!this.bombePosed && this.body.getPositionX() > this.gw.bombe.body.getPositionX()) {
+            AndroidFastRenderView.spawnBomb = true;
+            this.bombePosed = true;
         }
+
         canvas.save();
         canvas.rotate((float) Math.toDegrees(angle), x, y);
         dest.left = x - screen_semi_width;

@@ -75,10 +75,13 @@ public class TouchConsumer {
                 GameObject touchedGO = (GameObject) userData;
                 activePointerID = pointerId;
                 Log.d("MultiTouchHandler", "touched game object " + touchedGO.name);
-                if(touchedGO instanceof DynamicBoxGO){
+                if (touchedGO instanceof DynamicBoxGO) {
                     setupMouseJoint(x, y, touchedBody);
                 }
-                /*if(touchedGO instanceof Object_wanted){
+                if (touchedGO instanceof Button) {
+                    AndroidFastRenderView.incrConstruct(); // just for dev
+                }
+                /*if (touchedGO instanceof Object_wanted) {
                     do special action
                 }*/
                 //splitBox(touchedGO, touchedBody);

@@ -58,7 +58,7 @@ public class DynamicBoxGO extends GameObject
         fixturedef.setFriction(0.1f);       // default 0.2
         fixturedef.setRestitution(0.4f);    // default 0
         fixturedef.setDensity(density);     // default 0
-        body.createFixture(fixturedef);
+        this.body.createFixture(fixturedef);
 
         int green = (int)(255*Math.random());
         int color = Color.argb(0, 255, green, 0);

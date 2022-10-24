@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import com.google.fpl.liquidfun.BodyDef;
+import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.PolygonShape;
 
 public class Button extends GameObject
@@ -15,8 +16,7 @@ public class Button extends GameObject
     private float xmin, xmax, ymin, ymax;
     private float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
 
-    public Button(GameWorld gw, float xmin, float xmax, float ymin, float ymax)
-    {
+    public Button(GameWorld gw, float xmin, float xmax, float ymin, float ymax) {
         super(gw);
         this.xmin = xmin; this.xmax = xmax; this.ymin = ymin; this.ymax = ymax;
         this.screen_xmin = gw.worldToFrameBufferX(xmin);
@@ -28,8 +28,16 @@ public class Button extends GameObject
         BodyDef bdef = new BodyDef();
         // default position is (0,0) and default type is staticBody
         this.body = gw.world.createBody(bdef);
+        this.body.setSleepingAllowed(false);
         this.name = "Button";
         body.setUserData(this);
+        float width = xmax - xmin;
+        float height = ymax - ymin;
+        PolygonShape box = new PolygonShape();
+        box.setAsBox(xmin + width / 2, ymin + height / 2);
+        FixtureDef fixturedef = new FixtureDef();
+        fixturedef.setShape(box);
+        this.body.createFixture(fixturedef);
 
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();

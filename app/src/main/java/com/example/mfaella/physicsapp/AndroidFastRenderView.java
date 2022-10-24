@@ -17,12 +17,14 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     private SurfaceHolder holder;
     private GameWorld gameworld;
     private volatile boolean running = false;
-    volatile boolean spawnBomb = false;
-    volatile boolean playerFinish = false;
-    volatile boolean verifLevel = false;
-    volatile boolean win = false;
-    volatile boolean verifWin = false;
-    volatile int construct = 0;
+    volatile static boolean spawnBomb = false;
+    volatile static boolean playerFinish = false;
+    volatile static boolean verifLevel = false;
+    volatile static boolean win = false;
+    volatile static boolean verifWin = false;
+    volatile static int construct = 0;
+    volatile static boolean playerStart = false;
+    volatile static boolean removeTerrorist = false;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -53,13 +55,16 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
         }
     }
 
+    public static synchronized void incrConstruct() {
+        construct++;
+    }
+
     public void run() {
         Rect dstRect = new Rect();
         long startTime = System.nanoTime(), fpsTime = startTime, frameCounter = 0;
-        int tmp = 5;
-        this.spawnBomb = true;
+        //int tmp = 5;
 
-        /*** The Game Main Loop ***/
+        /* The Game Main Loop */
         while (running) {
             if(!holder.getSurface().isValid()) {
                 // too soon (busy waiting), this only happens on startup and resume
@@ -72,35 +77,52 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                   fpsDeltaTime = (currentTime-fpsTime) / 1000000000f;
             startTime = currentTime;
 
-            if (this.construct == this.gameworld.limitconstruct) {
-                this.playerFinish = true;
-            }
-
-            if (this.spawnBomb) {
+            if (spawnBomb) {
                 this.gameworld.addGameObject(this.gameworld.bombe);
-                this.spawnBomb = false;
+                spawnBomb = false;
             }
 
-            if (this.playerFinish) {
+            if (removeTerrorist) {
+                this.gameworld.removeGameObject(this.gameworld.terrorist);
+                removeTerrorist = false;
+                playerStart = true;
+            }
+
+            if (playerStart) {
+                this.gameworld.setConstructZones();
+                playerStart = false;
+            }
+
+            if (construct == this.gameworld.limitconstruct) {
+                playerFinish = true;
+                construct = -1; // évite de retomber dnas la boucle
+            }
+
+            if (playerFinish) {
                 if (this.gameworld.bombe != null) {
                     this.gameworld.bombe.explode();
                     this.gameworld.removeGameObject(this.gameworld.bombe);
                     this.gameworld.bombe = null;
                 }
-                this.playerFinish = false;
+                playerFinish = false;
+                verifLevel = true;
             }
 
-            if (this.verifLevel) {
+            if (verifLevel) {
                 // verif the level
+                verifLevel = false;
+                verifWin = true;
+                // this.win = true or false
             }
 
-            if (this.verifWin) {
-                if (this.win) {
+            if (verifWin) {
+                if (win) {
                     // win
                 }
                 else {
                     // lose
                 }
+                verifWin = false;
             }
 
             gameworld.update(deltaTime);

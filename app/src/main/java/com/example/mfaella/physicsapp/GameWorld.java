@@ -57,6 +57,7 @@ public class GameWorld {
 
     // the bombe
     Bombe bombe;
+    Terrorist terrorist;
     ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>();
     Joint joinToDestroy = null;
 
@@ -147,7 +148,7 @@ public class GameWorld {
 
     private void handleCollisions(Collection<Collision> collisions) {
         for (Collision event: collisions) {
-            Sound sound = CollisionSounds.getSound(event.a.getClass(), event.b.getClass());
+            Sound sound = null;//CollisionSounds.getSound(event.a.getClass(), event.b.getClass());
             if (sound!=null) {
                 long currentTime = System.nanoTime();
                 if (currentTime - timeOfLastSound > 500_000_000) {
@@ -216,15 +217,52 @@ public class GameWorld {
         this.touchHandler = touchHandler;
     }
 
-    public void setJoints(ArrayList<MyRevoluteJoint> newJoints) {
-        this.myJoints.clear();
-        this.myJoints.addAll(newJoints);
-    }
-
     public void createBombe(float decalage) {
-        Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint;
+        Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
         float bombeX = j.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
         float bombeY = j.getBodyB().getPositionY() - decalage;
         this.bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
     }
+
+    public void level1(float bridgeLength) {
+        /* adding roads */
+        int numRoads = 2; // level 1 : 2 roads
+        GameObject[] myRoad = new GameObject[numRoads];
+        myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
+        myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
+
+        /* adding bridge */
+        int numBridgePlank = 5; // level 1 : 5 planks
+        GameObject[] myBridge = new GameObject[numBridgePlank];
+        float plankWidth = bridgeLength / numBridgePlank;
+        float plankHeight = this.physicalSize.ymax / 40 ; // thin enough
+
+        // create planks
+        for (int i = 0; i < myBridge.length; i++)
+            myBridge[i] = this.addGameObject(new Bridge(this, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
+
+        // create joints
+        this.myJoints.clear();
+        this.myJoints = new ArrayList<>(numRoads + numBridgePlank);
+        this.myJoints.add(new MyRevoluteJoint(this, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, -plankHeight / 2)); // joint between road and plank
+        for (int i = 0; i < myBridge.length - 1; i++) // joints between planks
+            this.myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, plankHeight / 2, plankWidth / 2, plankHeight / 2));
+        this.myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2)); // joint between plank and road
+
+        /* bombe + terrorist */
+        this.createBombe(plankHeight);
+        this.terrorist = new Terrorist(this,this.physicalSize.xmin+2, -1);
+        this.addGameObject(this.terrorist);
+
+        this.limitconstruct = 1; // level 1 : 1 construct max
+    }
+
+    public synchronized void setConstructZones() {
+        // display all construct zones
+        /* adding digit display */
+        GameObject dd = this.addGameObject(new DigitDisplay(this, this.physicalSize.xmin+1, this.physicalSize.xmin+4, this.physicalSize.ymin+1, this.physicalSize.ymin+4, this.limitconstruct));
+        /* adding buttons */
+        GameObject button1 = this.addGameObject(new Button(this, this.physicalSize.xmax-4, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+4));// just for dev
+    }
+
 }

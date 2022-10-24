@@ -48,7 +48,7 @@ public class Bombe extends GameObject  {
         bdef.setType(BodyType.kinematicBody);
         // a body
         this.body = gw.world.createBody(bdef);
-        body.setSleepingAllowed(false);
+        body.setSleepingAllowed(true);
         this.name = "Bombe" + instances;
         body.setUserData(this);
 

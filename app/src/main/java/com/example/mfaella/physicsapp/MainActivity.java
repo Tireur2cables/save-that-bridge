@@ -70,53 +70,18 @@ public class MainActivity extends Activity {
             screenSize   = new Box(0, 0, metrics.widthPixels, metrics.heightPixels);
         GameWorld gw = new GameWorld(worldSize, screenSize, this);
 
-        /* adding road */
-        int numRoads = 2;
-        GameObject[] myRoad = new GameObject[numRoads];
-        myRoad[0] = gw.addGameObject(new Road(gw, xmin, -bridgeLength / 2,0, ymax));
-        myRoad[1] = gw.addGameObject(new Road(gw, bridgeLength / 2, xmax,0, ymax));
-
-        /* adding bridge */
-        int numBridgePlank = 5; // level 1 : 5 planks
-        GameObject[] myBridge = new GameObject[numBridgePlank];
-        float plankWidth = bridgeLength / numBridgePlank;
-        float plankHeight = ymax / 40 ; // thin enough
-        // create planks
-        for (int i = 0; i < myBridge.length; i++)
-            myBridge[i] = gw.addGameObject(new Bridge(gw, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
-        // create joints
-        ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>(numRoads + numBridgePlank);
-        myJoints.add(new MyRevoluteJoint(gw, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, -plankHeight / 2));
-        for (int i = 0; i < myBridge.length - 1; i++)
-            myJoints.add(new MyRevoluteJoint(gw, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, plankHeight / 2, plankWidth / 2, plankHeight / 2));
-        myJoints.add(new MyRevoluteJoint(gw, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2));
-
-        // give all the joints to gameworld
-        gw.setJoints(myJoints);
-        gw.createBombe(plankHeight);
-        gw.limitconstruct = 1; // lvl 1 need to be changed
-
-
-        // old objects
+        gw.level1(bridgeLength);
         /* physic border */
         gw.addGameObject(new EnclosureGO(gw, xmin, xmax, ymin, ymax));
-        /* adding objects */
-        gw.addGameObject(new DynamicBoxGO(gw, 0, 3));
+
+        // old objects
+        gw.addGameObject(new DynamicBoxGO(gw, 0, 3)); // just for dev
         //gw.addGameObject(new DynamicTriangleGO(gw, 7, 3));
         //gw.addGameObject(new MarblesGO(gw, 0, 5));
-        /* adding special objects */
         //GameObject a = gw.addGameObject(new DynamicBoxGO(gw, 0, -2));
         //GameObject b = gw.addGameObject(new DynamicBoxGO(gw, 1, -3));
         //new MyRevoluteJoint(gw, a.body, b.body);
         //new MyPrismaticJoint(gw, a.body, b.body);
-
-        /* adding buttons */
-        GameObject button1 = gw.addGameObject(new Button(gw, xmax-4, xmax-1, ymin+1, ymin+4));
-        /* adding digit display */
-        GameObject dd = gw.addGameObject(new DigitDisplay(gw, xmin+1, xmin+4, ymin+1, ymin+4, gw.limitconstruct));
-
-        /* Terrorist */
-        GameObject terrorist = gw.addGameObject((new Terrorist(gw,xmin+2, -1)));
 
         // Just for info
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -145,7 +110,7 @@ public class MainActivity extends Activity {
         super.onPause();
         Log.i("Main thread", "pause");
         renderView.pause(); // stops the main loop
-        //backgroundMusic.pause();
+        backgroundMusic.pause();
 
         // persistence example
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
@@ -167,7 +132,7 @@ public class MainActivity extends Activity {
         Log.i("Main thread", "resume");
 
         renderView.resume(); // starts game loop in a separate thread
-        //backgroundMusic.play();
+        backgroundMusic.play();
 
         // persistence example
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
