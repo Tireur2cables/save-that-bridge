@@ -218,7 +218,9 @@ public class GameWorld {
     }
 
     public void createBombe(float decalage) {
-        Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
+        //Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
+        // probleme de placement sur la derniere jointure
+        Joint j = this.myJoints.get(2).joint; // level 1 : bombe 2
         float bombeX = j.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
         float bombeY = j.getBodyB().getPositionY() - decalage;
         this.bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
