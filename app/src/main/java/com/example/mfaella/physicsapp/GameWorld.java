@@ -15,6 +15,7 @@ import com.google.fpl.liquidfun.ContactListener;
 import com.google.fpl.liquidfun.Joint;
 import com.google.fpl.liquidfun.ParticleSystem;
 import com.google.fpl.liquidfun.ParticleSystemDef;
+import com.google.fpl.liquidfun.Vec2;
 import com.google.fpl.liquidfun.World;
 
 import java.nio.ByteBuffer;
@@ -55,12 +56,16 @@ public class GameWorld {
     private static final int POSITION_ITERATIONS = 3;
     private static final int PARTICLE_ITERATIONS = 3;
 
-    // the bombe
-    Bombe bombe;
-    Terrorist terrorist;
-    ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>();
-    Joint joinToDestroy = null;
-
+    // gameobjects
+    static Bombe bombe;
+    static Terrorist terrorist;
+    static ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>();
+    static Joint joinToDestroy = null;
+    static Voiture voiture;
+    static DigitDisplay digitDisplay;
+    static Roue[] roues = new Roue[2];
+    static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
+    static boolean verified = false;
     // limit construct
     int limitconstruct = 0;
 
@@ -125,9 +130,9 @@ public class GameWorld {
         // advance the physics simulation
         world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
 
-        if (this.joinToDestroy != null) {
+        if (joinToDestroy != null) {
             this.world.destroyJoint(joinToDestroy);
-            this.joinToDestroy = null;
+            joinToDestroy = null;
         }
 
         // Handle collisions
@@ -148,6 +153,14 @@ public class GameWorld {
 
     private void handleCollisions(Collection<Collision> collisions) {
         for (Collision event: collisions) {
+            if (event.a instanceof EnclosureGO || event.b instanceof EnclosureGO) {
+                if (event.a instanceof Voiture || event.a instanceof Roue || event.b instanceof Roue || event.b instanceof Voiture) {
+                    if (!verified) {
+                        verified = true;
+                        this.verifWin(event.a, event.b);
+                    }
+                }
+            }
             Sound sound = null;//CollisionSounds.getSound(event.a.getClass(), event.b.getClass());
             if (sound!=null) {
                 long currentTime = System.nanoTime();
@@ -220,10 +233,10 @@ public class GameWorld {
     public void createBombe(float decalage) {
         //Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
         // probleme de placement sur la derniere jointure
-        Joint j = this.myJoints.get(2).joint; // level 1 : bombe 2
+        Joint j = myJoints.get(2).joint; // level 1 : bombe 2
         float bombeX = j.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
         float bombeY = j.getBodyB().getPositionY() - decalage;
-        this.bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
+        bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
     }
 
     public void level1(float bridgeLength) {
@@ -244,27 +257,58 @@ public class GameWorld {
             myBridge[i] = this.addGameObject(new Bridge(this, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
 
         // create joints
-        this.myJoints.clear();
-        this.myJoints = new ArrayList<>(numRoads + numBridgePlank);
-        this.myJoints.add(new MyRevoluteJoint(this, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2, -bridgeLength / 2, -plankHeight / 2)); // joint between road and plank
+        myJoints = new ArrayList<>(numRoads + numBridgePlank);
+        myJoints.add(new MyRevoluteJoint(this, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2,
+                -bridgeLength / 2, -plankHeight / 2)); // joint between road and plank
         for (int i = 0; i < myBridge.length - 1; i++) // joints between planks
-            this.myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, plankHeight / 2, plankWidth / 2, plankHeight / 2));
-        this.myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2, plankWidth / 2, -plankHeight / 2)); // joint between plank and road
+            myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, plankHeight / 2,
+                    plankWidth / 2, plankHeight / 2));
+        myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2,
+                plankWidth / 2, -plankHeight / 2)); // joint between plank and road
 
         /* bombe + terrorist */
         this.createBombe(plankHeight);
-        this.terrorist = new Terrorist(this,this.physicalSize.xmin+2, -1);
-        this.addGameObject(this.terrorist);
+        terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
+        this.addGameObject(terrorist);
 
         this.limitconstruct = 1; // level 1 : 1 construct max
+        digitDisplay = new DigitDisplay(this, this.physicalSize.xmin + 1, this.physicalSize.xmin + 4,
+                this.physicalSize.ymin + 1, this.physicalSize.ymin + 4, this.limitconstruct);
+        voiture = new Voiture(this, this.physicalSize.xmin + 2, 0);
+        roues[0] = new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1);
+        roues[1] = new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1);
+
     }
 
     public synchronized void setConstructZones() {
         // display all construct zones
         /* adding digit display */
-        GameObject dd = this.addGameObject(new DigitDisplay(this, this.physicalSize.xmin+1, this.physicalSize.xmin+4, this.physicalSize.ymin+1, this.physicalSize.ymin+4, this.limitconstruct));
+        GameObject dd = this.addGameObject(digitDisplay);
         /* adding buttons */
         GameObject button1 = this.addGameObject(new Button(this, this.physicalSize.xmax-4, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+4));// just for dev
+    }
+
+    public synchronized void verifLevel() {
+        GameObject v = this.addGameObject(voiture);
+        GameObject r1 = this.addGameObject(roues[0]);
+        GameObject r2 = this.addGameObject(roues[1]);
+        rouesJoints[0] = new MyRevoluteJointMotorised(this, v.body, r1.body, 0, 0, -Voiture.width / 2 + Roue.width / 2, Voiture.height / 2);
+        rouesJoints[1] = new MyRevoluteJointMotorised(this, v.body, r2.body, 0, 0, Voiture.width / 2 - Roue.width / 2, Voiture.height / 2);
+    }
+
+    private synchronized void verifWin(GameObject a, GameObject b) {
+        AndroidFastRenderView.win = (a instanceof EnclosureGO)? b.body.getPositionY() < 0 : a.body.getPositionY() < 0;
+        rouesJoints[0].joint.delete();
+        rouesJoints[0] = null;
+        rouesJoints[1].joint.delete();
+        rouesJoints[1] = null;
+        this.removeGameObject(voiture);
+        voiture = null;
+        this.removeGameObject(roues[0]);
+        roues[0] = null;
+        this.removeGameObject(roues[1]);
+        roues[1] = null;
+        AndroidFastRenderView.verifWin = true;
     }
 
 }

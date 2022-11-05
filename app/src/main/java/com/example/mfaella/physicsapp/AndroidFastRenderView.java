@@ -78,12 +78,12 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             startTime = currentTime;
 
             if (spawnBomb) {
-                this.gameworld.addGameObject(this.gameworld.bombe);
+                this.gameworld.addGameObject(GameWorld.bombe);
                 spawnBomb = false;
             }
 
             if (removeTerrorist) {
-                this.gameworld.removeGameObject(this.gameworld.terrorist);
+                this.gameworld.removeGameObject(GameWorld.terrorist);
                 removeTerrorist = false;
                 playerStart = true;
             }
@@ -99,28 +99,26 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             }
 
             if (playerFinish) {
-                if (this.gameworld.bombe != null) {
-                    this.gameworld.bombe.explode();
-                    this.gameworld.removeGameObject(this.gameworld.bombe);
-                    this.gameworld.bombe = null;
+                if (GameWorld.bombe != null) {
+                    GameWorld.bombe.explode();
+                    this.gameworld.removeGameObject(GameWorld.bombe);
+                    GameWorld.bombe = null;
                 }
                 playerFinish = false;
                 verifLevel = true;
             }
 
             if (verifLevel) {
-                // verif the level
+                this.gameworld.verifLevel();
                 verifLevel = false;
-                verifWin = true;
-                // this.win = true or false
             }
 
             if (verifWin) {
                 if (win) {
-                    // win
+                    Log.i("------------------", "WIIIIIIIIIIIIIINNNNNNNNNNNNNN");
                 }
                 else {
-                    // lose
+                    Log.i("------------------", "LOOOOOOOOOOOOOSSSSSSSSSSSSSE");
                 }
                 verifWin = false;
             }

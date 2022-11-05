@@ -85,7 +85,7 @@ public class Terrorist extends GameObject{
             AndroidFastRenderView.removeTerrorist = true;
         }
 
-        if (!this.bombePosed && this.body.getPositionX() > this.gw.bombe.body.getPositionX()) {
+        if (!this.bombePosed && this.body.getPositionX() > GameWorld.bombe.body.getPositionX()) {
             AndroidFastRenderView.spawnBomb = true;
             this.bombePosed = true;
         }
