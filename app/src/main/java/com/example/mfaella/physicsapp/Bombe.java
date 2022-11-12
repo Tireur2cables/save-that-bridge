@@ -84,7 +84,7 @@ public class Bombe extends GameObject  {
     }
 
     public synchronized void explode() {
-        this.gw.joinToDestroy = this.joint;
+        GameWorld.jointsToDestroy.add(this.joint);
         this.joint = null;
     }
 

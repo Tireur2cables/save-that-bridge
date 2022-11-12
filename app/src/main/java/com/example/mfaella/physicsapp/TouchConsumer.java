@@ -79,7 +79,7 @@ public class TouchConsumer {
                     setupMouseJoint(x, y, touchedBody);
                 }
                 if (touchedGO instanceof Button) {
-                    AndroidFastRenderView.incrConstruct(); // just for dev
+                    GameWorld.incrConstruct(); // just for dev, change in ready button for release
                 }
                 /*if (touchedGO instanceof Object_wanted) {
                     do special action

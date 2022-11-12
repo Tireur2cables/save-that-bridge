@@ -56,18 +56,25 @@ public class GameWorld {
     private static final int POSITION_ITERATIONS = 3;
     private static final int PARTICLE_ITERATIONS = 3;
 
+    private static int level = 0;
+
     // gameobjects
+    private static int numRoads;
+    private static GameObject[] myRoad;
+    private static int numBridgePlank;
+    private static GameObject[] myBridge;
+
     static Bombe bombe;
     static Terrorist terrorist;
-    static ArrayList<MyRevoluteJoint> myJoints = new ArrayList<>();
-    static Joint joinToDestroy = null;
+    static ArrayList<MyRevoluteJoint> myJoints;
+    static volatile ArrayList<Joint> jointsToDestroy = new ArrayList<>();
     static Voiture voiture;
-    static DigitDisplay digitDisplay;
     static Roue[] roues = new Roue[2];
     static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
     static boolean verified = false;
-    // limit construct
-    int limitconstruct = 0;
+    private static ArrayList<GameObject> constructCounters;
+    static int construct = -1;
+    private static GameObject buttonReady;
 
     final Activity activity; // just for loading bitmaps in game objects
 
@@ -130,10 +137,10 @@ public class GameWorld {
         // advance the physics simulation
         world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
 
-        if (joinToDestroy != null) {
-            this.world.destroyJoint(joinToDestroy);
-            joinToDestroy = null;
+        for (int i = 0; i < jointsToDestroy.size(); i++) {
+            this.world.destroyJoint(jointsToDestroy.get(i));
         }
+        jointsToDestroy.clear();
 
         // Handle collisions
         handleCollisions(contactListener.getCollisions());
@@ -239,16 +246,61 @@ public class GameWorld {
         bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
     }
 
-    public void level1(float bridgeLength) {
+    public void nextLevel() {
+        level++;
+        switch (level) {
+            case 1 : {
+                this.level1();
+                break;
+            }
+            case 2 : {
+                this.removeOldObjects();
+                this.level2();
+                break;
+            }
+            default : {
+                this.removeOldObjects();
+                level = 1;
+                this.level1();
+                break;
+            }
+        }
+    }
+
+    private synchronized void removeOldObjects() {
+        for (MyRevoluteJoint r : myJoints) {
+            jointsToDestroy.add(r.joint);
+            r.joint = null;
+        }
+        for (GameObject gameObject : myRoad) {
+            this.removeGameObject(gameObject);
+        }
+        for (GameObject g : myBridge) {
+            this.removeGameObject(g);
+        }
+        for (GameObject g : constructCounters) {
+            this.removeGameObject(g);
+        }
+        this.removeGameObject(buttonReady);
+    }
+
+    public void retryLevel() {
+        this.removeOldObjects();
+        level--;
+        this.nextLevel();
+    }
+
+    private void level1() {
+        float bridgeLength = this.activity.getResources().getInteger(R.integer.bridge_world_length);
         /* adding roads */
-        int numRoads = 2; // level 1 : 2 roads
-        GameObject[] myRoad = new GameObject[numRoads];
+        numRoads = 2; // level 1 : 2 roads
+        myRoad = new GameObject[numRoads];
         myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
         myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
 
         /* adding bridge */
-        int numBridgePlank = 5; // level 1 : 5 planks
-        GameObject[] myBridge = new GameObject[numBridgePlank];
+        numBridgePlank = 5; // level 1 : 5 planks
+        myBridge = new GameObject[numBridgePlank];
         float plankWidth = bridgeLength / numBridgePlank;
         float plankHeight = this.physicalSize.ymax / 40 ; // thin enough
 
@@ -271,21 +323,85 @@ public class GameWorld {
         terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
         this.addGameObject(terrorist);
 
-        this.limitconstruct = 1; // level 1 : 1 construct max
-        digitDisplay = new DigitDisplay(this, this.physicalSize.xmin + 1, this.physicalSize.xmin + 4,
-                this.physicalSize.ymin + 1, this.physicalSize.ymin + 4, this.limitconstruct);
+        construct = 2; // level 1 : 2 construct max
+        float pc_xmin = this.physicalSize.xmin + 1;
+        float pc_xmax = this.physicalSize.xmin + 4;
+        float pc_ymin = this.physicalSize.ymin + 1;
+        float pc_ymax = 2; // enough for a reasonnable number
+        float hauteur = 3; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
+        constructCounters = new ArrayList<>(construct);
+        for (int i = 0; i < construct; i++) {
+            float new_ymin = pc_ymin + i * hauteur;
+            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
+        }
         voiture = new Voiture(this, this.physicalSize.xmin + 2, 0);
         roues[0] = new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1);
         roues[1] = new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1);
 
     }
 
+    private void level2() {
+        float bridgeLength = this.activity.getResources().getInteger(R.integer.bridge_world_length);
+        /* adding roads */
+        numRoads = 2; // level 1 : 2 roads
+        myRoad = new GameObject[numRoads];
+        myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
+        myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
+
+        /* adding bridge */
+        numBridgePlank = 5; // level 1 : 5 planks
+        myBridge = new GameObject[numBridgePlank];
+        float plankWidth = bridgeLength / numBridgePlank;
+        float plankHeight = this.physicalSize.ymax / 40 ; // thin enough
+
+        // create planks
+        for (int i = 0; i < myBridge.length; i++)
+            myBridge[i] = this.addGameObject(new Bridge(this, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
+
+        // create joints
+        myJoints = new ArrayList<>(numRoads + numBridgePlank);
+        myJoints.add(new MyRevoluteJoint(this, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2,
+                -bridgeLength / 2, -plankHeight / 2)); // joint between road and plank
+        for (int i = 0; i < myBridge.length - 1; i++) // joints between planks
+            myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, plankHeight / 2,
+                    plankWidth / 2, plankHeight / 2));
+        myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2,
+                plankWidth / 2, -plankHeight / 2)); // joint between plank and road
+
+        /* bombe + terrorist */
+        this.createBombe(plankHeight);
+        terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
+        this.addGameObject(terrorist);
+
+        construct = 1; // level 2 : 1 construct max
+        float pc_xmin = this.physicalSize.xmin + 1;
+        float pc_xmax = this.physicalSize.xmin + 4;
+        float pc_ymin = this.physicalSize.ymin + 1;
+        float pc_ymax = 2; // enough for a reasonnable number
+        float hauteur = 3; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
+        constructCounters = new ArrayList<>(construct);
+        for (int i = 0; i < construct; i++) {
+            float new_ymin = pc_ymin + i * hauteur;
+            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
+        }
+        voiture = new Voiture(this, this.physicalSize.xmin + 2, 0);
+        roues[0] = new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1);
+        roues[1] = new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1);
+
+    }
+
+    public static synchronized void incrConstruct() {
+        construct--;
+        if (!constructCounters.isEmpty()) {
+            GameObject g = constructCounters.remove(constructCounters.size() - 1);
+            g.gw.removeGameObject(g);
+        }
+    }
+
     public synchronized void setConstructZones() {
         // display all construct zones
-        /* adding digit display */
-        GameObject dd = this.addGameObject(digitDisplay);
-        /* adding buttons */
-        GameObject button1 = this.addGameObject(new Button(this, this.physicalSize.xmax-4, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+4));// just for dev
+        /* adding buttons */ // can be ready button
+        buttonReady = this.addGameObject(new Button(this, this.physicalSize.xmax-4, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+4));// just for dev
     }
 
     public synchronized void verifLevel() {

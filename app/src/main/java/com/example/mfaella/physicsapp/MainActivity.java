@@ -48,7 +48,6 @@ public class MainActivity extends Activity {
         float xmax = res.getInteger(R.integer.world_xmax);
         float ymin = res.getInteger(R.integer.world_ymin);
         float ymax = res.getInteger(R.integer.world_ymax);
-        float bridgeLength = res.getInteger(R.integer.bridge_world_length);
         TAG = getString(R.string.app_name);
 
         /* Request all the screen to Android  */
@@ -70,7 +69,7 @@ public class MainActivity extends Activity {
             screenSize   = new Box(0, 0, metrics.widthPixels, metrics.heightPixels);
         GameWorld gw = new GameWorld(worldSize, screenSize, this);
 
-        gw.level1(bridgeLength);
+        gw.nextLevel();
         /* physic border */
         gw.addGameObject(new EnclosureGO(gw, xmin, xmax, ymin, ymax));
 
