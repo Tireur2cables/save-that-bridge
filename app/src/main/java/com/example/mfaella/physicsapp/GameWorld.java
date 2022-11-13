@@ -11,6 +11,7 @@ import android.util.Log;
 import com.badlogic.androidgames.framework.Input;
 import com.badlogic.androidgames.framework.Sound;
 import com.badlogic.androidgames.framework.impl.TouchHandler;
+import com.google.fpl.liquidfun.Body;
 import com.google.fpl.liquidfun.ContactListener;
 import com.google.fpl.liquidfun.Joint;
 import com.google.fpl.liquidfun.ParticleSystem;
@@ -56,7 +57,7 @@ public class GameWorld {
     private static final int POSITION_ITERATIONS = 3;
     private static final int PARTICLE_ITERATIONS = 3;
 
-    private static int level = 0;
+    private static volatile int level = 0;
 
     // gameobjects
     private static int numRoads;
@@ -68,13 +69,16 @@ public class GameWorld {
     static Terrorist terrorist;
     static ArrayList<MyRevoluteJoint> myJoints;
     static volatile ArrayList<Joint> jointsToDestroy = new ArrayList<>();
+    static volatile ArrayList<Body> bodiesToDestroy = new ArrayList<>();
     static Voiture voiture;
     static Roue[] roues = new Roue[2];
     static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
-    static boolean verified = false;
+    static volatile boolean verified = false;
     private static ArrayList<GameObject> constructCounters;
     static int construct = -1;
     private static GameObject buttonReady;
+    private static GameObject worldBorder;
+    private static GameObject devCube;
 
     final Activity activity; // just for loading bitmaps in game objects
 
@@ -98,13 +102,13 @@ public class GameWorld {
         // The particle system
         ParticleSystemDef psysdef = new ParticleSystemDef();
         this.particleSystem = world.createParticleSystem(psysdef);
-        particleSystem.setRadius(PARTICLE_RADIUS);
-        particleSystem.setMaxParticleCount(MAXPARTICLECOUNT);
+        this.particleSystem.setRadius(PARTICLE_RADIUS);
+        this.particleSystem.setMaxParticleCount(MAXPARTICLECOUNT);
         psysdef.delete();
 
         // stored to prevent GC
-        contactListener = new MyContactListener();
-        world.setContactListener(contactListener);
+        this.contactListener = new MyContactListener();
+        world.setContactListener(this.contactListener);
 
         touchConsumer = new TouchConsumer(this);
 
@@ -120,8 +124,11 @@ public class GameWorld {
 
     public synchronized boolean removeGameObject(GameObject obj) {
         boolean res = false;
-        while(objects.remove(obj)) { // remove eventual doubles
-            res = true;
+        if (obj != null) {
+            bodiesToDestroy.add(obj.body);
+            while(objects.remove(obj)) { // remove eventual doubles
+                res = true;
+            }
         }
         return res;
     }
@@ -141,6 +148,10 @@ public class GameWorld {
             this.world.destroyJoint(jointsToDestroy.get(i));
         }
         jointsToDestroy.clear();
+        for (int i = 0; i < bodiesToDestroy.size(); i++) {
+            this.world.destroyBody(bodiesToDestroy.get(i));
+        }
+        bodiesToDestroy.clear();
 
         // Handle collisions
         handleCollisions(contactListener.getCollisions());
@@ -246,7 +257,7 @@ public class GameWorld {
         bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
     }
 
-    public void nextLevel() {
+    public synchronized void nextLevel() {
         level++;
         switch (level) {
             case 1 : {
@@ -268,29 +279,34 @@ public class GameWorld {
     }
 
     private synchronized void removeOldObjects() {
-        for (MyRevoluteJoint r : myJoints) {
-            jointsToDestroy.add(r.joint);
-            r.joint = null;
+        for (int i = 0; i < myJoints.size(); i++) {
+            jointsToDestroy.add(myJoints.get(i).joint);
         }
-        for (GameObject gameObject : myRoad) {
-            this.removeGameObject(gameObject);
+        for (int i = 0; i < myRoad.length; i++) {
+            this.removeGameObject(myRoad[i]);
         }
-        for (GameObject g : myBridge) {
-            this.removeGameObject(g);
+        for (int i = 0; i < myBridge.length; i++) {
+            this.removeGameObject(myBridge[i]);
         }
-        for (GameObject g : constructCounters) {
-            this.removeGameObject(g);
+        for (int i = 0; i < constructCounters.size(); i++) {
+            this.removeGameObject(constructCounters.get(i));
         }
         this.removeGameObject(buttonReady);
+        this.removeGameObject(devCube);
+        this.removeGameObject(worldBorder);
+        verified = false;
     }
 
-    public void retryLevel() {
-        this.removeOldObjects();
-        level--;
+    public synchronized void retryLevel() {
+        if (level == 1) level = -2;
+        else level--;
         this.nextLevel();
     }
 
     private void level1() {
+        /* physic border */
+        worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
+        devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
         float bridgeLength = this.activity.getResources().getInteger(R.integer.bridge_world_length);
         /* adding roads */
         numRoads = 2; // level 1 : 2 roads
@@ -341,6 +357,9 @@ public class GameWorld {
     }
 
     private void level2() {
+        /* physic border */
+        worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
+        devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
         float bridgeLength = this.activity.getResources().getInteger(R.integer.bridge_world_length);
         /* adding roads */
         numRoads = 2; // level 1 : 2 roads
@@ -414,16 +433,16 @@ public class GameWorld {
 
     private synchronized void verifWin(GameObject a, GameObject b) {
         AndroidFastRenderView.win = (a instanceof EnclosureGO)? b.body.getPositionY() < 0 : a.body.getPositionY() < 0;
-        rouesJoints[0].joint.delete();
-        rouesJoints[0] = null;
-        rouesJoints[1].joint.delete();
-        rouesJoints[1] = null;
+        jointsToDestroy.add(rouesJoints[0].joint);
+        //rouesJoints[0] = null;
+        jointsToDestroy.add(rouesJoints[1].joint);
+        //rouesJoints[1] = null;
         this.removeGameObject(voiture);
-        voiture = null;
+        //voiture = null;
         this.removeGameObject(roues[0]);
-        roues[0] = null;
+        //roues[0] = null;
         this.removeGameObject(roues[1]);
-        roues[1] = null;
+        //roues[1] = null;
         AndroidFastRenderView.verifWin = true;
     }
 

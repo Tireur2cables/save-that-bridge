@@ -70,11 +70,8 @@ public class MainActivity extends Activity {
         GameWorld gw = new GameWorld(worldSize, screenSize, this);
 
         gw.nextLevel();
-        /* physic border */
-        gw.addGameObject(new EnclosureGO(gw, xmin, xmax, ymin, ymax));
 
         // old objects
-        gw.addGameObject(new DynamicBoxGO(gw, 0, 3)); // just for dev
         //gw.addGameObject(new DynamicTriangleGO(gw, 7, 3));
         //gw.addGameObject(new MarblesGO(gw, 0, 5));
         //GameObject a = gw.addGameObject(new DynamicBoxGO(gw, 0, -2));
