@@ -45,6 +45,8 @@ public class Button extends GameObject
         bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.test, o);
 
         // clean up native objects
+        fixturedef.delete();
+        bdef.delete();
         bdef.delete();
     }
 

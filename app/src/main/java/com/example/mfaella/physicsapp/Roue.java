@@ -2,6 +2,7 @@ package com.example.mfaella.physicsapp;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
@@ -48,6 +49,10 @@ public class Roue extends GameObject{
         fixturedef.setRestitution(0.4f);    // default 0
         fixturedef.setDensity(density);     // default 0
         this.body.createFixture(fixturedef);
+
+        int color = Color.argb(255, 255, 0, 0);
+        paint.setColor(color);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         // clean up native objects
         fixturedef.delete();

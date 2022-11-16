@@ -78,8 +78,13 @@ public class TouchConsumer {
                 if (touchedGO instanceof DynamicBoxGO) {
                     setupMouseJoint(x, y, touchedBody);
                 }
-                if (touchedGO instanceof Button) {
+                else if (touchedGO instanceof Button) {
                     GameWorld.incrConstruct(); // just for dev, change in ready button for release
+                }
+                else if (touchedGO instanceof Bridge){
+                    if(((Bridge) touchedGO).has_anchor){
+                        gw.addReinforcement();
+                    }
                 }
                 /*if (touchedGO instanceof Object_wanted) {
                     do special action

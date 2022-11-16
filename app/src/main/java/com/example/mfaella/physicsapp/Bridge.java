@@ -21,9 +21,11 @@ public class Bridge extends GameObject  {
 
     private final Canvas canvas;
     private final Paint paint = new Paint();
+    final boolean has_anchor = true;
 
     public Bridge(GameWorld gw, float x, float y, float width, float height) {
         super(gw);
+
 
         instances++;
 
@@ -50,9 +52,7 @@ public class Bridge extends GameObject  {
         fixturedef.setDensity(density);     // default 0
         body.createFixture(fixturedef);
 
-        int color = Color.argb(255, 0, 0, 0);
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+
 
         // clean up native objects
         fixturedef.delete();
@@ -65,6 +65,11 @@ public class Bridge extends GameObject  {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.wood, o);
+        if(this.has_anchor) {
+            int color = Color.argb(200, 250, 0, 0);
+            paint.setColor(color);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        }
 
     }
 
@@ -82,6 +87,9 @@ public class Bridge extends GameObject  {
         this.dest.top = y - screen_semi_height;
         // Sprite
         this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
+        if (this.has_anchor) {
+            this.canvas.drawCircle(x, y, screen_semi_width / 5, paint);
+        }
         this.canvas.restore();
     }
 

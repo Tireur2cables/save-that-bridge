@@ -321,16 +321,18 @@ public class GameWorld {
         float plankHeight = this.physicalSize.ymax / 40 ; // thin enough
 
         // create planks
-        for (int i = 0; i < myBridge.length; i++)
+        for (int i = 0; i < myBridge.length; i++) {
             myBridge[i] = this.addGameObject(new Bridge(this, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
+        }
 
         // create joints
         myJoints = new ArrayList<>(numRoads + numBridgePlank);
         myJoints.add(new MyRevoluteJoint(this, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2,
                 -bridgeLength / 2, -plankHeight / 2)); // joint between road and plank
-        for (int i = 0; i < myBridge.length - 1; i++) // joints between planks
-            myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i+1].body, -plankWidth / 2, plankHeight / 2,
+        for (int i = 0; i < myBridge.length - 1; i++) { // joints between planks
+            myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i + 1].body, -plankWidth / 2, plankHeight / 2,
                     plankWidth / 2, plankHeight / 2));
+        }
         myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2,
                 plankWidth / 2, -plankHeight / 2)); // joint between plank and road
 
@@ -415,6 +417,10 @@ public class GameWorld {
             GameObject g = constructCounters.remove(constructCounters.size() - 1);
             g.gw.removeGameObject(g);
         }
+    }
+
+    public synchronized void addReinforcement(){
+        this.addGameObject(new DynamicBoxGO(this, 0, 3));
     }
 
     public synchronized void setConstructZones() {
