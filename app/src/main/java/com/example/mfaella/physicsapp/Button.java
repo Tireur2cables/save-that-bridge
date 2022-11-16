@@ -24,17 +24,18 @@ public class Button extends GameObject
         this.screen_ymin = gw.worldToFrameBufferY(ymin);
         this.screen_ymax = gw.worldToFrameBufferY(ymax);
 
+        float width = Math.abs(xmax - xmin);
+        float height = Math.abs(ymax - ymin);
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
+        bdef.setPosition(xmin + width/2, ymin + height/2);
         // default position is (0,0) and default type is staticBody
         this.body = gw.world.createBody(bdef);
         this.body.setSleepingAllowed(false);
         this.name = "Button";
         body.setUserData(this);
-        float width = xmax - xmin;
-        float height = ymax - ymin;
         PolygonShape box = new PolygonShape();
-        box.setAsBox(xmin + width / 2, ymin + height / 2);
+        box.setAsBox(width / 2, height / 2);
         FixtureDef fixturedef = new FixtureDef();
         fixturedef.setShape(box);
         this.body.createFixture(fixturedef);
