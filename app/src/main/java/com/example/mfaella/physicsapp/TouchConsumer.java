@@ -18,6 +18,7 @@ public class TouchConsumer {
     private MouseJoint mouseJoint;
     private int activePointerID;
     private Fixture touchedFixture;
+    private GameObject oldObject;
 
     private GameWorld gw;
     private QueryCallback touchQueryCallback = new TouchQueryCallback();
@@ -75,21 +76,53 @@ public class TouchConsumer {
                 GameObject touchedGO = (GameObject) userData;
                 activePointerID = pointerId;
                 Log.d("MultiTouchHandler", "touched game object " + touchedGO.name);
-                if (touchedGO instanceof DynamicBoxGO) {
-                    setupMouseJoint(x, y, touchedBody);
-                }
-                else if (touchedGO instanceof Button) {
-                    GameWorld.incrConstruct(); // just for dev, change in ready button for release
-                }
-                else if (touchedGO instanceof Bridge){
-                    if(((Bridge) touchedGO).has_anchor){
-                        gw.addReinforcement();
+                if (touchedGO instanceof Anchor || touchedGO instanceof Bridge){
+                    if (touchedGO instanceof Bridge && ((Bridge) touchedGO).has_anchor){
+                        if(oldObject instanceof Anchor){
+                            gw.addReinforcement();
+                            ((Anchor) oldObject).setColor(false);
+                            oldObject = null;
+                        }
+                        else{
+                            if(oldObject instanceof Bridge)
+                                ((Bridge) oldObject).setColor(false);
+                            oldObject = touchedGO;
+                            ((Bridge) touchedGO).setColor(true);
+                        }
+                    }
+                    else if (touchedGO instanceof Anchor){
+                        if(oldObject instanceof Bridge && ((Bridge) oldObject).has_anchor){
+                            gw.addReinforcement();
+                            ((Bridge) oldObject).setColor(false);
+                            oldObject = null;
+                        }
+                        else{
+                            if(oldObject instanceof Anchor)
+                                ((Anchor) oldObject).setColor(false);
+                            oldObject = touchedGO;
+                            ((Anchor) touchedGO).setColor(true);
+                        }
                     }
                 }
-                /*if (touchedGO instanceof Object_wanted) {
+                else{
+                    if(oldObject instanceof Anchor) {
+                        ((Anchor) oldObject).setColor(false);
+                    }
+                    else if(oldObject instanceof Bridge){
+                        ((Bridge) oldObject).setColor(false);
+                    }
+                    oldObject = null;
+                    if (touchedGO instanceof DynamicBoxGO) {
+                        setupMouseJoint(x, y, touchedBody);
+                    }
+                    else if (touchedGO instanceof Button) {
+                        GameWorld.incrConstruct(); // just for dev, change in ready button for release
+                    }
+                    /*if (touchedGO instanceof Object_wanted) {
                     do special action
-                }*/
-                //splitBox(touchedGO, touchedBody);
+                    }*/
+                    //splitBox(touchedGO, touchedBody);
+                }
             }
         }
     }

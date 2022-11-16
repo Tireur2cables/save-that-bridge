@@ -24,7 +24,7 @@ public class Anchor extends GameObject  {
     private static int instances = 0;
 
     private final Canvas canvas;
-    private final Paint paint = new Paint();
+    private Paint paint = new Paint();
 
     public Anchor(GameWorld gw, float x, float y) {
         super(gw);
@@ -37,7 +37,7 @@ public class Anchor extends GameObject  {
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
         bdef.setPosition(x, y);
-        bdef.setType(BodyType.dynamicBody);
+        bdef.setType(BodyType.staticBody);
         // a body
         this.body = gw.world.createBody(bdef);
         body.setSleepingAllowed(false);
@@ -63,6 +63,15 @@ public class Anchor extends GameObject  {
     }
 
     private final RectF dest = new RectF();
+
+    public void setColor(boolean selected){
+        if (selected){
+            paint.setColor(Color.argb(200, 0, 250, 0));
+        }
+        else {
+            paint.setColor(Color.argb(200, 250, 0, 0));
+        }
+    }
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {

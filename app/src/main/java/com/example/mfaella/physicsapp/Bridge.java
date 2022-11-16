@@ -73,6 +73,15 @@ public class Bridge extends GameObject  {
 
     }
 
+    public void setColor(boolean selected){
+        if (selected){
+            paint.setColor(Color.argb(200, 0, 250, 0));
+        }
+        else {
+            paint.setColor(Color.argb(200, 250, 0, 0));
+        }
+    }
+
     private final Rect src = null;
     private final RectF dest = new RectF();
     private final Bitmap bitmap;

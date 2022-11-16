@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.util.Log;
 
+import com.badlogic.androidgames.framework.Game;
 import com.badlogic.androidgames.framework.Input;
 import com.badlogic.androidgames.framework.Sound;
 import com.badlogic.androidgames.framework.impl.TouchHandler;
@@ -64,6 +65,7 @@ public class GameWorld {
     private static GameObject[] myRoad;
     private static int numBridgePlank;
     private static GameObject[] myBridge;
+    private static GameObject[] myAnchors;
 
     static Bombe bombe;
     static Terrorist terrorist;
@@ -291,6 +293,9 @@ public class GameWorld {
         for (int i = 0; i < constructCounters.size(); i++) {
             this.removeGameObject(constructCounters.get(i));
         }
+        for (int i = 0; i<2; i++){
+            this.removeGameObject(myAnchors[i]);
+        }
         this.removeGameObject(buttonReady);
         this.removeGameObject(devCube);
         this.removeGameObject(worldBorder);
@@ -313,6 +318,11 @@ public class GameWorld {
         myRoad = new GameObject[numRoads];
         myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
         myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
+
+        /* adding anchors */
+        myAnchors = new GameObject[2];
+        myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
+        myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
 
         /* adding bridge */
         numBridgePlank = 5; // level 1 : 5 planks
@@ -368,6 +378,11 @@ public class GameWorld {
         myRoad = new GameObject[numRoads];
         myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
         myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
+
+        /* adding anchors */
+        myAnchors = new GameObject[2];
+        myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
+        myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
 
         /* adding bridge */
         numBridgePlank = 5; // level 1 : 5 planks
