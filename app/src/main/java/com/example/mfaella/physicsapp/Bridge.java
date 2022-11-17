@@ -26,10 +26,9 @@ public class Bridge extends GameObject  {
     public Bridge(GameWorld gw, float x, float y, float width, float height) {
         super(gw);
 
-
         instances++;
 
-        this.canvas = new Canvas(gw.buffer); // Is this needed?
+        this.canvas = new Canvas(gw.buffer);
         screen_semi_width = gw.toPixelsXLength(width) / 2;
         screen_semi_height = gw.toPixelsYLength(height) / 2;
 
@@ -52,34 +51,25 @@ public class Bridge extends GameObject  {
         fixturedef.setDensity(density);     // default 0
         body.createFixture(fixturedef);
 
-
-
         // clean up native objects
         fixturedef.delete();
         bdef.delete();
         box.delete();
 
-        Fixture f = body.getFixtureList();
-
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.wood, o);
-        if(this.has_anchor) {
+        if (this.has_anchor) {
             int color = Color.argb(200, 250, 0, 0);
-            paint.setColor(color);
-            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            this.paint.setColor(color);
+            this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
         }
-
     }
 
     public void setColor(boolean selected){
-        if (selected){
-            paint.setColor(Color.argb(200, 0, 250, 0));
-        }
-        else {
-            paint.setColor(Color.argb(200, 250, 0, 0));
-        }
+        if (selected) this.paint.setColor(Color.argb(200, 0, 250, 0));
+        else this.paint.setColor(Color.argb(200, 250, 0, 0));
     }
 
     private final Rect src = null;
@@ -97,7 +87,7 @@ public class Bridge extends GameObject  {
         // Sprite
         this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
         if (this.has_anchor) {
-            this.canvas.drawCircle(x, y, screen_semi_width / 5, paint);
+            this.canvas.drawCircle(x, y, this.gw.toPixelsXLength(Anchor.width-0.1f) / 2, paint);
         }
         this.canvas.restore();
     }

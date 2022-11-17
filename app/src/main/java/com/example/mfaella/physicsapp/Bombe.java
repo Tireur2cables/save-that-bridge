@@ -19,12 +19,10 @@ import com.google.fpl.liquidfun.PolygonShape;
 
 public class Bombe extends GameObject  {
 
-    private static final float density = 0.1f;
     private static float screen_semi_width, screen_semi_height;
     private static int instances = 0;
 
     private final Canvas canvas;
-    private final Paint paint = new Paint();
     private Joint joint;
     private GameWorld gw;
 
@@ -35,7 +33,7 @@ public class Bombe extends GameObject  {
         this.joint = joint;
         this.gw = gw;
         float width = res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin);
-        width /= 15; // well enough
+        width /= 20; // well enough
         float height = width;
 
         this.canvas = new Canvas(gw.buffer); // Is this needed?
@@ -52,11 +50,6 @@ public class Bombe extends GameObject  {
         this.name = "Bombe" + instances;
         body.setUserData(this);
 
-        // transparent
-        int color = Color.argb(0, 0, 0, 0);
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-
         // clean up native objects
         bdef.delete();
 
@@ -68,7 +61,7 @@ public class Bombe extends GameObject  {
 
     private final Rect src = null;
     private final RectF dest = new RectF();
-    private Bitmap bitmap;
+    private final Bitmap bitmap;
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {

@@ -60,6 +60,8 @@ public class GameWorld {
 
     private static volatile int level = 0;
 
+    private static volatile float bridgeLength;
+
     // gameobjects
     private static int numRoads;
     private static GameObject[] myRoad;
@@ -103,19 +105,21 @@ public class GameWorld {
 
         // The particle system
         ParticleSystemDef psysdef = new ParticleSystemDef();
-        this.particleSystem = world.createParticleSystem(psysdef);
+        this.particleSystem = this.world.createParticleSystem(psysdef);
         this.particleSystem.setRadius(PARTICLE_RADIUS);
         this.particleSystem.setMaxParticleCount(MAXPARTICLECOUNT);
         psysdef.delete();
 
         // stored to prevent GC
         this.contactListener = new MyContactListener();
-        world.setContactListener(this.contactListener);
+        this.world.setContactListener(this.contactListener);
 
-        touchConsumer = new TouchConsumer(this);
+        this.touchConsumer = new TouchConsumer(this);
 
         this.objects = new ArrayList<>();
-        this.canvas = new Canvas(buffer);
+        this.canvas = new Canvas(this.buffer);
+
+        bridgeLength = (res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin)) * 2.0f / 3.0f;
     }
 
 
@@ -312,17 +316,15 @@ public class GameWorld {
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
         devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
-        float bridgeLength = this.activity.getResources().getInteger(R.integer.bridge_world_length);
+        /* adding anchors */
+        myAnchors = new GameObject[2];
+        myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
+        myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
         /* adding roads */
         numRoads = 2; // level 1 : 2 roads
         myRoad = new GameObject[numRoads];
         myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
         myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
-
-        /* adding anchors */
-        myAnchors = new GameObject[2];
-        myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
-        myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
 
         /* adding bridge */
         numBridgePlank = 5; // level 1 : 5 planks
@@ -353,10 +355,9 @@ public class GameWorld {
 
         construct = 2; // level 1 : 2 construct max
         float pc_xmin = this.physicalSize.xmin + 1;
-        float pc_xmax = this.physicalSize.xmin + 4;
+        float pc_xmax = this.physicalSize.xmin + 3;
         float pc_ymin = this.physicalSize.ymin + 1;
-        float pc_ymax = 2; // enough for a reasonnable number
-        float hauteur = 3; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
+        float hauteur = 2; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
         constructCounters = new ArrayList<>(construct);
         for (int i = 0; i < construct; i++) {
             float new_ymin = pc_ymin + i * hauteur;
@@ -372,17 +373,15 @@ public class GameWorld {
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
         devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
-        float bridgeLength = this.activity.getResources().getInteger(R.integer.bridge_world_length);
+        /* adding anchors */
+        myAnchors = new GameObject[2];
+        myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
+        myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
         /* adding roads */
         numRoads = 2; // level 1 : 2 roads
         myRoad = new GameObject[numRoads];
         myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
         myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
-
-        /* adding anchors */
-        myAnchors = new GameObject[2];
-        myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
-        myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
 
         /* adding bridge */
         numBridgePlank = 5; // level 1 : 5 planks
@@ -411,10 +410,9 @@ public class GameWorld {
 
         construct = 1; // level 2 : 1 construct max
         float pc_xmin = this.physicalSize.xmin + 1;
-        float pc_xmax = this.physicalSize.xmin + 4;
+        float pc_xmax = this.physicalSize.xmin + 3;
         float pc_ymin = this.physicalSize.ymin + 1;
-        float pc_ymax = 2; // enough for a reasonnable number
-        float hauteur = 3; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
+        float hauteur = 2; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
         constructCounters = new ArrayList<>(construct);
         for (int i = 0; i < construct; i++) {
             float new_ymin = pc_ymin + i * hauteur;
@@ -440,8 +438,8 @@ public class GameWorld {
 
     public synchronized void setConstructZones() {
         // display all construct zones
-        /* adding buttons */ // can be ready button
-        buttonReady = this.addGameObject(new Button(this, this.physicalSize.xmax-4, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+4));// just for dev
+        /* adding button */ // can be ready button
+        buttonReady = this.addGameObject(new Button(this, this.physicalSize.xmax-3, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+3));
     }
 
     public synchronized void verifLevel() {

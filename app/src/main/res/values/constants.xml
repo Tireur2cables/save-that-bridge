@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="world_xmax">10</integer>
-    <integer name="world_xmin">-10</integer>
-    <integer name="world_ymax">15</integer>
-    <integer name="world_ymin">-15</integer>
-    <integer name="bridge_world_length">10</integer>
-    <integer name="frame_buffer_width">400</integer>
-    <integer name="frame_buffer_height">600</integer>
+    <integer name="world_ymax">10</integer>
+    <integer name="world_ymin">-10</integer>
+    <integer name="world_xmax">15</integer>
+    <integer name="world_xmin">-15</integer>
+    <integer name="frame_buffer_height">400</integer>
+    <integer name="frame_buffer_width">600</integer>
 </resources>

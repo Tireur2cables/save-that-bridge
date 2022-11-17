@@ -17,14 +17,14 @@ import com.google.fpl.liquidfun.PolygonShape;
 
 public class Anchor extends GameObject  {
 
-    static final float width = 0.4f;
+    static final float width = 0.7f;
 
-    private static float screen_semi_width, screen_semi_height;
+    private static float screen_semi_width;
 
     private static int instances = 0;
 
     private final Canvas canvas;
-    private Paint paint = new Paint();
+    private final Paint paint = new Paint();
 
     public Anchor(GameWorld gw, float x, float y) {
         super(gw);
@@ -32,7 +32,6 @@ public class Anchor extends GameObject  {
 
         this.canvas = new Canvas(gw.buffer);
         screen_semi_width = gw.toPixelsXLength(width) / 2;
-        screen_semi_height = gw.toPixelsYLength(width) / 2;
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
@@ -57,19 +56,19 @@ public class Anchor extends GameObject  {
         box.delete();
 
         int color = Color.argb(200, 250, 0, 0);
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.paint.setColor(color);
+        this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
     }
 
     private final RectF dest = new RectF();
 
     public void setColor(boolean selected){
-        if (selected){
-            paint.setColor(Color.argb(200, 0, 250, 0));
+        if (selected) {
+            this.paint.setColor(Color.argb(200, 0, 250, 0));
         }
         else {
-            paint.setColor(Color.argb(200, 250, 0, 0));
+            this.paint.setColor(Color.argb(200, 250, 0, 0));
         }
     }
 
@@ -77,13 +76,8 @@ public class Anchor extends GameObject  {
     public void draw(Bitmap buffer, float x, float y, float angle) {
         this.canvas.save();
         this.canvas.rotate((float) Math.toDegrees(angle), x, y);
-        this.dest.left = x - screen_semi_width;
-        this.dest.bottom = y + screen_semi_height;
-        this.dest.right = x + screen_semi_width;
-        this.dest.top = y - screen_semi_height;
-        // Simple box
+        // Simple circle
         this.canvas.drawCircle(x, y, screen_semi_width, paint);
-        //canvas.drawRect(x- screen_semi_width, y- screen_semi_height, x + screen_semi_width, y + screen_semi_height, paint);
         this.canvas.restore();
     }
 

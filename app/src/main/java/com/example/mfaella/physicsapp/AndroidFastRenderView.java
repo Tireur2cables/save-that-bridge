@@ -12,10 +12,10 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AndroidFastRenderView extends SurfaceView implements Runnable {
-    private Bitmap framebuffer;
+    private final Bitmap framebuffer;
     private Thread renderThread = null;
-    private SurfaceHolder holder;
-    private GameWorld gameworld;
+    private final SurfaceHolder holder;
+    private final GameWorld gameworld;
     private volatile boolean running = false;
     volatile static boolean spawnBomb = false;
     volatile static boolean playerFinish = false;
@@ -35,18 +35,18 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     /** Starts the game loop in a separate thread.
      */
     public void resume() {
-        running = true;
-        renderThread = new Thread(this);
-        renderThread.start();         
+        this.running = true;
+        this.renderThread = new Thread(this);
+        this.renderThread.start();
     }
 
     /** Stops the game loop and waits for it to finish
      */
     public void pause() {
-        running = false;
+        this.running = false;
         while(true) {
             try {
-                renderThread.join();
+                this.renderThread.join();
                 break;
             } catch (InterruptedException e) {
                 // just retry
@@ -57,11 +57,10 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     public void run() {
         Rect dstRect = new Rect();
         long startTime = System.nanoTime(), fpsTime = startTime, frameCounter = 0;
-        //int tmp = 5;
 
         /* The Game Main Loop */
-        while (running) {
-            if(!holder.getSurface().isValid()) {
+        while (this.running) {
+            if (!this.holder.getSurface().isValid()) {
                 // too soon (busy waiting), this only happens on startup and resume
                 continue;
             }
@@ -120,15 +119,15 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                 verifWin = false;
             }
 
-            gameworld.update(deltaTime);
-            gameworld.render();
+            this.gameworld.update(deltaTime);
+            this.gameworld.render();
 
             // Draw framebuffer on screen
-            Canvas canvas = holder.lockCanvas();
+            Canvas canvas = this.holder.lockCanvas();
             canvas.getClipBounds(dstRect);
             // Scales to actual screen resolution
-            canvas.drawBitmap(framebuffer, null, dstRect, null);
-            holder.unlockCanvasAndPost(canvas);
+            canvas.drawBitmap(this.framebuffer, null, dstRect, null);
+            this.holder.unlockCanvasAndPost(canvas);
 
             // Measure FPS
             frameCounter++;
@@ -136,14 +135,6 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                 Log.d("FastRenderView", "Current FPS = " + frameCounter);
                 frameCounter = 0;
                 fpsTime = currentTime;
-/*
-                if (tmp != -10)
-                    tmp--;
-                if (tmp == 0) {
-                    this.playerFinish = true;
-                    tmp = -10;
-                }
-*/
             }
         }
     }

@@ -9,16 +9,13 @@ import com.google.fpl.liquidfun.BodyDef;
 import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.PolygonShape;
 
-public class Button extends GameObject
-{
+public class Button extends GameObject {
 
-    private Paint paint = new Paint();
-    private float xmin, xmax, ymin, ymax;
-    private float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
+    private final Paint paint = new Paint();
+    private final float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
 
     public Button(GameWorld gw, float xmin, float xmax, float ymin, float ymax) {
         super(gw);
-        this.xmin = xmin; this.xmax = xmax; this.ymin = ymin; this.ymax = ymax;
         this.screen_xmin = gw.worldToFrameBufferX(xmin);
         this.screen_xmax = gw.worldToFrameBufferX(xmax);
         this.screen_ymin = gw.worldToFrameBufferY(ymin);
@@ -40,25 +37,18 @@ public class Button extends GameObject
         fixturedef.setShape(box);
         this.body.createFixture(fixturedef);
 
-        // Prevents scaling
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.test, o);
-
         // clean up native objects
         fixturedef.delete();
         bdef.delete();
         bdef.delete();
     }
 
-    private Bitmap bitmap;
-
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
-        paint.setARGB(150, 255, 0, 0);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth(2);
+        this.paint.setARGB(150, 255, 0, 0);
+        this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.paint.setStrokeWidth(2);
         Canvas canvas = new Canvas(buffer);
-        canvas.drawRect(screen_xmin, screen_ymin, screen_xmax, screen_ymax, paint);
+        canvas.drawRect(this.screen_xmin, this.screen_ymin, this.screen_xmax, this.screen_ymax, this.paint);
     }
 }
