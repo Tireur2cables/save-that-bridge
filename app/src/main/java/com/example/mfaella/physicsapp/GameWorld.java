@@ -58,9 +58,11 @@ public class GameWorld {
     private static final int POSITION_ITERATIONS = 3;
     private static final int PARTICLE_ITERATIONS = 3;
 
-    private static volatile int level = 0;
+    static volatile int level = 0; // so first level will be 1
 
-    private static volatile float bridgeLength;
+    private static float bridgeLength;
+
+    static boolean oldObjectsRemoved = true;
 
     // gameobjects
     private static int numRoads;
@@ -72,12 +74,12 @@ public class GameWorld {
     static Bombe bombe;
     static Terrorist terrorist;
     static ArrayList<MyRevoluteJoint> myJoints;
-    static volatile ArrayList<Joint> jointsToDestroy = new ArrayList<>();
-    static volatile ArrayList<Body> bodiesToDestroy = new ArrayList<>();
-    static Voiture voiture;
-    static Roue[] roues = new Roue[2];
+    static ArrayList<Joint> jointsToDestroy = new ArrayList<>();
+    static ArrayList<Body> bodiesToDestroy = new ArrayList<>();
+    static GameObject voiture;
+    static GameObject[] roues = new Roue[2];
     static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
-    static volatile boolean verified = false;
+    static boolean verified = false;
     private static ArrayList<GameObject> constructCounters;
     static int construct = -1;
     private static GameObject buttonReady;
@@ -122,13 +124,16 @@ public class GameWorld {
         bridgeLength = (res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin)) * 2.0f / 3.0f;
     }
 
-
     public synchronized GameObject addGameObject(GameObject obj) {
         this.objects.add(obj);
         return obj;
     }
 
-    public synchronized boolean removeGameObject(GameObject obj) {
+    synchronized void addJointsToRemove(Joint j) {
+        jointsToDestroy.add(j);
+    }
+
+    synchronized boolean removeGameObject(GameObject obj) {
         boolean res = false;
         if (obj != null) {
             bodiesToDestroy.add(obj.body);
@@ -158,6 +163,7 @@ public class GameWorld {
             this.world.destroyBody(bodiesToDestroy.get(i));
         }
         bodiesToDestroy.clear();
+        this.setOldObjectsRemoved(true);
 
         // Handle collisions
         handleCollisions(contactListener.getCollisions());
@@ -254,7 +260,7 @@ public class GameWorld {
         this.touchHandler = touchHandler;
     }
 
-    public void createBombe(float decalage) {
+    void createBombe(float decalage) {
         //Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
         // probleme de placement sur la derniere jointure
         Joint j = myJoints.get(2).joint; // level 1 : bombe 2
@@ -263,7 +269,7 @@ public class GameWorld {
         bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
     }
 
-    public synchronized void nextLevel() {
+    synchronized void nextLevel() {
         level++;
         switch (level) {
             case 1 : {
@@ -271,12 +277,10 @@ public class GameWorld {
                 break;
             }
             case 2 : {
-                this.removeOldObjects();
                 this.level2();
                 break;
             }
             default : {
-                this.removeOldObjects();
                 level = 1;
                 this.level1();
                 break;
@@ -284,9 +288,9 @@ public class GameWorld {
         }
     }
 
-    private synchronized void removeOldObjects() {
+    synchronized void removeOldObjects() {
         for (int i = 0; i < myJoints.size(); i++) {
-            jointsToDestroy.add(myJoints.get(i).joint);
+            this.addJointsToRemove(myJoints.get(i).joint);
         }
         for (int i = 0; i < myRoad.length; i++) {
             this.removeGameObject(myRoad[i]);
@@ -304,12 +308,19 @@ public class GameWorld {
         this.removeGameObject(devCube);
         this.removeGameObject(worldBorder);
         verified = false;
+        this.setOldObjectsRemoved(false);
     }
 
-    public synchronized void retryLevel() {
-        if (level == 1) level = -2;
-        else level--;
-        this.nextLevel();
+    synchronized void setOldObjectsRemoved(boolean b) {
+        oldObjectsRemoved = b;
+    }
+
+    static synchronized void decrLevel() {
+        level--;
+    }
+
+    static synchronized boolean getOldObjectsRemoved() {
+        return oldObjectsRemoved;
     }
 
     private void level1() {
@@ -363,10 +374,6 @@ public class GameWorld {
             float new_ymin = pc_ymin + i * hauteur;
             constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
         }
-        voiture = new Voiture(this, this.physicalSize.xmin + 2, 0);
-        roues[0] = new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1);
-        roues[1] = new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1);
-
     }
 
     private void level2() {
@@ -418,10 +425,6 @@ public class GameWorld {
             float new_ymin = pc_ymin + i * hauteur;
             constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
         }
-        voiture = new Voiture(this, this.physicalSize.xmin + 2, 0);
-        roues[0] = new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1);
-        roues[1] = new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1);
-
     }
 
     public static synchronized void incrConstruct() {
@@ -443,11 +446,11 @@ public class GameWorld {
     }
 
     public synchronized void verifLevel() {
-        GameObject v = this.addGameObject(voiture);
-        GameObject r1 = this.addGameObject(roues[0]);
-        GameObject r2 = this.addGameObject(roues[1]);
-        rouesJoints[0] = new MyRevoluteJointMotorised(this, v.body, r1.body, 0, 0, -Voiture.width / 2 + Roue.width / 2, Voiture.height / 2);
-        rouesJoints[1] = new MyRevoluteJointMotorised(this, v.body, r2.body, 0, 0, Voiture.width / 2 - Roue.width / 2, Voiture.height / 2);
+        voiture = this.addGameObject(new Voiture(this, this.physicalSize.xmin + 2, 0));
+        roues[0] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1));
+        roues[1] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1));
+        rouesJoints[0] = new MyRevoluteJointMotorised(this, voiture.body, roues[0].body, 0, 0, -Voiture.width / 2 + Roue.width / 2, Voiture.height / 2);
+        rouesJoints[1] = new MyRevoluteJointMotorised(this, voiture.body, roues[1].body, 0, 0, Voiture.width / 2 - Roue.width / 2, Voiture.height / 2);
     }
 
     private synchronized void verifWin(GameObject a, GameObject b) {

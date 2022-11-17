@@ -24,6 +24,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     volatile static boolean verifWin = false;
     volatile static boolean playerStart = false;
     volatile static boolean removeTerrorist = false;
+    private volatile static boolean launchNextLevel = false;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -94,7 +95,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
 
             if (playerFinish) {
                 if (GameWorld.bombe != null) {
-                    //GameWorld.bombe.explode();
+                    GameWorld.bombe.explode();
                     this.gameworld.removeGameObject(GameWorld.bombe);
                     GameWorld.bombe = null;
                 }
@@ -108,15 +109,23 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             }
 
             if (verifWin) {
+                this.gameworld.removeOldObjects();
                 if (win) {
                     Log.i("------------------", "WIIIIIIIIIIIIIINNNNNNNNNNNNNN");
-                    this.gameworld.nextLevel();
                 }
                 else {
                     Log.i("------------------", "LOOOOOOOOOOOOOSSSSSSSSSSSSSE");
-                    this.gameworld.retryLevel();
+                    GameWorld.decrLevel();
                 }
                 verifWin = false;
+                launchNextLevel = true;
+            }
+
+            if (launchNextLevel) {
+                if (GameWorld.getOldObjectsRemoved()) {
+                    this.gameworld.nextLevel();
+                    launchNextLevel = false;
+                }
             }
 
             this.gameworld.update(deltaTime);
