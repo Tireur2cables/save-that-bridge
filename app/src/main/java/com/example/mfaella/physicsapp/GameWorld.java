@@ -58,11 +58,12 @@ public class GameWorld {
     private static final int POSITION_ITERATIONS = 3;
     private static final int PARTICLE_ITERATIONS = 3;
 
-    static volatile int level = 0; // so first level will be 1
+    static int level = 0; // so first level will be 1
 
     private static float bridgeLength;
 
     static boolean oldObjectsRemoved = true;
+    static boolean readyForNextLevel = true;
 
     // gameobjects
     private static int numRoads;
@@ -155,15 +156,18 @@ public class GameWorld {
         // advance the physics simulation
         world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
 
-        for (int i = 0; i < jointsToDestroy.size(); i++) {
-            this.world.destroyJoint(jointsToDestroy.get(i));
+        if (!getOldObjectsRemoved()) {
+            for (int i = 0; i < jointsToDestroy.size(); i++) {
+                this.world.destroyJoint(jointsToDestroy.get(i));
+            }
+            jointsToDestroy.clear();
+            for (int i = 0; i < bodiesToDestroy.size(); i++) {
+                this.world.destroyBody(bodiesToDestroy.get(i));
+            }
+            bodiesToDestroy.clear();
+            setOldObjectsRemoved(true);
+            if (!readyForNextLevel) readyForNextLevel = true;
         }
-        jointsToDestroy.clear();
-        for (int i = 0; i < bodiesToDestroy.size(); i++) {
-            this.world.destroyBody(bodiesToDestroy.get(i));
-        }
-        bodiesToDestroy.clear();
-        this.setOldObjectsRemoved(true);
 
         // Handle collisions
         handleCollisions(contactListener.getCollisions());
@@ -263,9 +267,9 @@ public class GameWorld {
     void createBombe(float decalage) {
         //Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
         // probleme de placement sur la derniere jointure
-        Joint j = myJoints.get(2).joint; // level 1 : bombe 2
-        float bombeX = j.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
-        float bombeY = j.getBodyB().getPositionY() - decalage;
+        MyRevoluteJoint j = myJoints.get(2); // level 1 : bombe 2
+        float bombeX = j.joint.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
+        float bombeY = j.joint.getBodyB().getPositionY() - decalage;
         bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
     }
 
@@ -308,10 +312,11 @@ public class GameWorld {
         this.removeGameObject(devCube);
         this.removeGameObject(worldBorder);
         verified = false;
-        this.setOldObjectsRemoved(false);
+        setOldObjectsRemoved(false);
+        readyForNextLevel = false;
     }
 
-    synchronized void setOldObjectsRemoved(boolean b) {
+    static synchronized void setOldObjectsRemoved(boolean b) {
         oldObjectsRemoved = b;
     }
 
@@ -432,6 +437,7 @@ public class GameWorld {
         if (!constructCounters.isEmpty()) {
             GameObject g = constructCounters.remove(constructCounters.size() - 1);
             g.gw.removeGameObject(g);
+            setOldObjectsRemoved(false);
         }
     }
 
@@ -466,6 +472,7 @@ public class GameWorld {
         this.removeGameObject(roues[1]);
         //roues[1] = null;
         AndroidFastRenderView.verifWin = true;
+        setOldObjectsRemoved(false);
     }
 
 }

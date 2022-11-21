@@ -16,15 +16,15 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     private Thread renderThread = null;
     private final SurfaceHolder holder;
     private final GameWorld gameworld;
-    private volatile boolean running = false;
-    volatile static boolean spawnBomb = false;
-    volatile static boolean playerFinish = false;
-    volatile static boolean verifLevel = false;
-    volatile static boolean win = false;
-    volatile static boolean verifWin = false;
-    volatile static boolean playerStart = false;
-    volatile static boolean removeTerrorist = false;
-    private volatile static boolean launchNextLevel = false;
+    private boolean running = false;
+    static boolean spawnBomb = false;
+    static boolean playerFinish = false;
+    static boolean verifLevel = false;
+    static boolean win = false;
+    static boolean verifWin = false;
+    static boolean playerStart = false;
+    static boolean removeTerrorist = false;
+    private static boolean launchNextLevel = false;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -79,6 +79,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
 
             if (removeTerrorist) {
                 this.gameworld.removeGameObject(GameWorld.terrorist);
+                GameWorld.setOldObjectsRemoved(false);
                 removeTerrorist = false;
                 playerStart = true;
             }
@@ -97,6 +98,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                 if (GameWorld.bombe != null) {
                     GameWorld.bombe.explode();
                     this.gameworld.removeGameObject(GameWorld.bombe);
+                    GameWorld.setOldObjectsRemoved(false);
                     GameWorld.bombe = null;
                 }
                 playerFinish = false;
@@ -122,7 +124,8 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             }
 
             if (launchNextLevel) {
-                if (GameWorld.getOldObjectsRemoved()) {
+                if (GameWorld.readyForNextLevel) {
+                    Log.i("------------------", "IIIIIIIIIIIIIIIIIIIICCCCCCCCCIIIIIIIIIIIII");
                     this.gameworld.nextLevel();
                     launchNextLevel = false;
                 }

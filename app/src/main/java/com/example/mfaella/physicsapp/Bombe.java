@@ -23,10 +23,10 @@ public class Bombe extends GameObject  {
     private static int instances = 0;
 
     private final Canvas canvas;
-    private Joint joint;
+    private MyRevoluteJoint joint;
     private GameWorld gw;
 
-    public Bombe(GameWorld gw, float x, float y, Joint joint, Resources res) {
+    public Bombe(GameWorld gw, float x, float y, MyRevoluteJoint joint, Resources res) {
         super(gw);
 
         instances++;
@@ -77,7 +77,9 @@ public class Bombe extends GameObject  {
     }
 
     public synchronized void explode() {
-        GameWorld.jointsToDestroy.add(this.joint);
+        GameWorld.jointsToDestroy.add(this.joint.joint);
+        GameWorld.myJoints.remove(this.joint);
+        GameWorld.setOldObjectsRemoved(false);
         this.joint = null;
     }
 
