@@ -14,6 +14,7 @@ import com.google.fpl.liquidfun.CircleShape;
 import com.google.fpl.liquidfun.Fixture;
 import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.PolygonShape;
+import com.google.fpl.liquidfun.Vec2;
 
 public class Anchor extends GameObject  {
 
@@ -60,6 +61,7 @@ public class Anchor extends GameObject  {
         this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
     }
+
 
     private final RectF dest = new RectF();
 

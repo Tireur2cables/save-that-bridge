@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.fpl.liquidfun.Body;
+import com.google.fpl.liquidfun.Vec2;
 
 /**
  * Created by mfaella on 27/02/16.
@@ -49,4 +50,5 @@ public abstract class GameObject {
     public String toString() {
         return name;
     }
+
 }

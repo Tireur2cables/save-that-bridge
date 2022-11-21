@@ -16,12 +16,12 @@ import com.google.fpl.liquidfun.PolygonShape;
 
 public class Bridge extends GameObject  {
     private static final float density = 1f;
-    private static float screen_semi_width, screen_semi_height;
+    private final float screen_semi_width, screen_semi_height;
     private static int instances = 0;
 
     private final Canvas canvas;
     private final Paint paint = new Paint();
-    final boolean has_anchor = true;
+    public boolean has_anchor = true;
 
     public Bridge(GameWorld gw, float x, float y, float width, float height) {
         super(gw);
@@ -49,7 +49,7 @@ public class Bridge extends GameObject  {
         fixturedef.setFriction(0.1f);       // default 0.2
         fixturedef.setRestitution(0.4f);    // default 0
         fixturedef.setDensity(density);     // default 0
-        body.createFixture(fixturedef);
+        this.body.createFixture(fixturedef);
 
         // clean up native objects
         fixturedef.delete();
@@ -60,6 +60,7 @@ public class Bridge extends GameObject  {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.wood, o);
+
         if (this.has_anchor) {
             int color = Color.argb(200, 250, 0, 0);
             this.paint.setColor(color);

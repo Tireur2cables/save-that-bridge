@@ -17,7 +17,8 @@ public class Vec2 {
     swigCPtr = cPtr;
   }
 
-  protected static long getCPtr(Vec2 obj) {
+
+    protected static long getCPtr(Vec2 obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 

@@ -79,7 +79,7 @@ public class TouchConsumer {
                 if (touchedGO instanceof Anchor || touchedGO instanceof Bridge){
                     if (touchedGO instanceof Bridge && ((Bridge) touchedGO).has_anchor){
                         if(oldObject instanceof Anchor){
-                            gw.addReinforcement();
+                            gw.addReinforcement(oldObject, touchedGO);
                             ((Anchor) oldObject).setColor(false);
                             oldObject = null;
                         }
@@ -92,7 +92,7 @@ public class TouchConsumer {
                     }
                     else if (touchedGO instanceof Anchor){
                         if(oldObject instanceof Bridge && ((Bridge) oldObject).has_anchor){
-                            gw.addReinforcement();
+                            gw.addReinforcement(touchedGO, oldObject);
                             ((Bridge) oldObject).setColor(false);
                             oldObject = null;
                         }

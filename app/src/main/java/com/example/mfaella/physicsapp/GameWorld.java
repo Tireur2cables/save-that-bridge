@@ -77,6 +77,7 @@ public class GameWorld {
     static ArrayList<MyRevoluteJoint> myJoints;
     static ArrayList<Joint> jointsToDestroy = new ArrayList<>();
     static ArrayList<Body> bodiesToDestroy = new ArrayList<>();
+    private static ArrayList<GameObject> reinforcements;
     static GameObject voiture;
     static GameObject[] roues = new Roue[2];
     static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
@@ -308,6 +309,9 @@ public class GameWorld {
         for (int i = 0; i<2; i++){
             this.removeGameObject(myAnchors[i]);
         }
+        for (int i = 0; i < reinforcements.size(); i++) {
+            this.removeGameObject(reinforcements.get(i));
+        }
         this.removeGameObject(buttonReady);
         this.removeGameObject(devCube);
         this.removeGameObject(worldBorder);
@@ -379,6 +383,8 @@ public class GameWorld {
             float new_ymin = pc_ymin + i * hauteur;
             constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
         }
+
+        reinforcements = new ArrayList<>(construct);
     }
 
     private void level2() {
@@ -430,6 +436,8 @@ public class GameWorld {
             float new_ymin = pc_ymin + i * hauteur;
             constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
         }
+
+        reinforcements = new ArrayList<>(construct);
     }
 
     public static synchronized void incrConstruct() {
@@ -441,8 +449,24 @@ public class GameWorld {
         }
     }
 
-    public synchronized void addReinforcement(){
-        this.addGameObject(new DynamicBoxGO(this, 0, 3));
+    public synchronized void addReinforcement(GameObject objectA, GameObject objectB){
+        // if enough construct
+        float width = (float)Math.sqrt(Math.pow(objectA.body.getPositionX()-objectB.body.getPositionX(),2)+
+                Math.pow(objectA.body.getPositionY()-objectB.body.getPositionY(),2));
+        if (width<12) {
+            Bridge reinforcement = new Bridge(this, 0, -10, width, 0.3f);
+            reinforcement.has_anchor = false;
+            this.addGameObject(reinforcement);
+            reinforcements.add(reinforcement);
+            if(objectA.body.getPositionX()<reinforcement.body.getPositionX()) {
+                myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, -width / 2, 0, 0, 0));
+                myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, width / 2, 0, 0, 0));
+            }
+            else{
+                myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, width / 2, 0, 0, 0));
+                myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, -width / 2, 0, 0, 0));
+            }
+        }
     }
 
     public synchronized void setConstructZones() {
