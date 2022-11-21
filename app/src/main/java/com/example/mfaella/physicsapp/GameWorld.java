@@ -458,7 +458,7 @@ public class GameWorld {
             float width = (float) Math.sqrt(Math.pow(objectA.body.getPositionX() - objectB.body.getPositionX(), 2) +
                     Math.pow(objectA.body.getPositionY() - objectB.body.getPositionY(), 2));
             if (width < 12) {
-                Bridge reinforcement = new Bridge(this, 0, -10, width, 0.3f);
+                Bridge reinforcement = new Bridge(this, 0, 10, width, 0.3f);
                 reinforcement.has_anchor = false;
                 this.addGameObject(reinforcement);
                 reinforcements.add(reinforcement);
