@@ -64,6 +64,7 @@ public class GameWorld {
 
     static boolean oldObjectsRemoved = true;
     static boolean readyForNextLevel = true;
+    private static boolean placing = true;
 
     // gameobjects
     private static int numRoads;
@@ -333,6 +334,7 @@ public class GameWorld {
     }
 
     private void level1() {
+        placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
         devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
@@ -388,6 +390,7 @@ public class GameWorld {
     }
 
     private void level2() {
+        placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
         devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
@@ -451,20 +454,21 @@ public class GameWorld {
 
     public synchronized void addReinforcement(GameObject objectA, GameObject objectB){
         // if enough construct
-        float width = (float)Math.sqrt(Math.pow(objectA.body.getPositionX()-objectB.body.getPositionX(),2)+
-                Math.pow(objectA.body.getPositionY()-objectB.body.getPositionY(),2));
-        if (width<12) {
-            Bridge reinforcement = new Bridge(this, 0, -10, width, 0.3f);
-            reinforcement.has_anchor = false;
-            this.addGameObject(reinforcement);
-            reinforcements.add(reinforcement);
-            if(objectA.body.getPositionX()<reinforcement.body.getPositionX()) {
-                myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, -width / 2, 0, 0, 0));
-                myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, width / 2, 0, 0, 0));
-            }
-            else{
-                myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, width / 2, 0, 0, 0));
-                myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, -width / 2, 0, 0, 0));
+        if(placing) {
+            float width = (float) Math.sqrt(Math.pow(objectA.body.getPositionX() - objectB.body.getPositionX(), 2) +
+                    Math.pow(objectA.body.getPositionY() - objectB.body.getPositionY(), 2));
+            if (width < 12) {
+                Bridge reinforcement = new Bridge(this, 0, -10, width, 0.3f);
+                reinforcement.has_anchor = false;
+                this.addGameObject(reinforcement);
+                reinforcements.add(reinforcement);
+                if (objectA.body.getPositionX() < reinforcement.body.getPositionX()) {
+                    myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, -width / 2, 0, 0, 0));
+                    myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, width / 2, 0, 0, 0));
+                } else {
+                    myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, width / 2, 0, 0, 0));
+                    myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, -width / 2, 0, 0, 0));
+                }
             }
         }
     }
@@ -476,6 +480,7 @@ public class GameWorld {
     }
 
     public synchronized void verifLevel() {
+        placing = false;
         voiture = this.addGameObject(new Voiture(this, this.physicalSize.xmin + 2, 0));
         roues[0] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1));
         roues[1] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1));
