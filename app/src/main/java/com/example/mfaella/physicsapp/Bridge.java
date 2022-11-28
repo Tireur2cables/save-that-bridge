@@ -16,6 +16,8 @@ import com.google.fpl.liquidfun.PolygonShape;
 
 public class Bridge extends GameObject  {
     private static final float density = 1f;
+    private static final float friction = 0.1f;
+    private static final float restitution = 0.4f;
     private final float screen_semi_width, screen_semi_height;
     private static int instances = 0;
 
@@ -29,8 +31,8 @@ public class Bridge extends GameObject  {
         instances++;
 
         this.canvas = new Canvas(gw.buffer);
-        screen_semi_width = gw.toPixelsXLength(width) / 2;
-        screen_semi_height = gw.toPixelsYLength(height) / 2;
+        this.screen_semi_width = gw.toPixelsXLength(width) / 2;
+        this.screen_semi_height = gw.toPixelsYLength(height) / 2;
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
@@ -38,16 +40,16 @@ public class Bridge extends GameObject  {
         bdef.setType(BodyType.dynamicBody);
         // a body
         this.body = gw.world.createBody(bdef);
-        body.setSleepingAllowed(false);
+        this.body.setSleepingAllowed(false);
         this.name = "Bridge" + instances;
-        body.setUserData(this);
+        this.body.setUserData(this);
 
         PolygonShape box = new PolygonShape();
         box.setAsBox(width / 2, height / 2);
         FixtureDef fixturedef = new FixtureDef();
         fixturedef.setShape(box);
-        fixturedef.setFriction(0.1f);       // default 0.2
-        fixturedef.setRestitution(0.4f);    // default 0
+        fixturedef.setFriction(friction);       // default 0.2
+        fixturedef.setRestitution(restitution);    // default 0
         fixturedef.setDensity(density);     // default 0
         this.body.createFixture(fixturedef);
 
@@ -68,7 +70,7 @@ public class Bridge extends GameObject  {
         }
     }
 
-    public void setColor(boolean selected){
+    public void setColor(boolean selected) {
         if (selected) this.paint.setColor(Color.argb(200, 0, 250, 0));
         else this.paint.setColor(Color.argb(200, 250, 0, 0));
     }

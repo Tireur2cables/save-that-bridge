@@ -56,17 +56,17 @@ public class MainActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Sound
-        audio = new AndroidAudio(this);
-        CollisionSounds.init(audio);
-        backgroundMusic = audio.newMusic("soundtrack.mp3");
-        backgroundMusic.setLooping(true);
-        backgroundMusic.play();
+        this.audio = new AndroidAudio(this);
+        CollisionSounds.init(this.audio);
+        this.backgroundMusic = this.audio.newMusic("soundtrack.mp3");
+        this.backgroundMusic.setLooping(true);
+        this.backgroundMusic.play();
 
         // Game world
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         Box worldSize = new Box(xmin, ymin, xmax, ymax),
-            screenSize   = new Box(0, 0, metrics.widthPixels, metrics.heightPixels);
+            screenSize = new Box(0, 0, metrics.widthPixels, metrics.heightPixels);
         GameWorld gw = new GameWorld(worldSize, screenSize, this);
 
         gw.nextLevel();
@@ -85,17 +85,17 @@ public class MainActivity extends Activity {
         Log.i(getString(R.string.app_name), "Refresh rate =" + refreshRate);
 
         // View
-        renderView = new AndroidFastRenderView(this, gw);
-        setContentView(renderView);
+        this.renderView = new AndroidFastRenderView(this, gw);
+        setContentView(this.renderView);
 
         // Touch
-        touch = new MultiTouchHandler(renderView, 1, 1);
+        this.touch = new MultiTouchHandler(this.renderView, 1, 1);
         // Setter needed due to cyclic dependency
-        gw.setTouchHandler(touch);
+        gw.setTouchHandler(this.touch);
 
         // Unrelated to the rest, just to show interaction with another thread
-        t = new MyThread(gw);
-        t.start();
+        this.t = new MyThread(gw);
+        this.t.start();
 
         Log.i(getString(R.string.app_name), "onCreate complete, Endianness = " +
                 (ByteOrder.nativeOrder()==ByteOrder.BIG_ENDIAN? "Big Endian" : "Little Endian"));

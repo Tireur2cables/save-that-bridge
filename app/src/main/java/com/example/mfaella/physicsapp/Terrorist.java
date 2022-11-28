@@ -17,11 +17,10 @@ import com.google.fpl.liquidfun.PolygonShape;
 import com.google.fpl.liquidfun.Vec2;
 
 // Act as a kinematic object
-public class Terrorist extends GameObject{
+public class Terrorist extends GameObject {
     private static float screen_semi_width, screen_semi_height;
 
     private final Canvas canvas;
-    private final Paint paint = new Paint();
 
     public Terrorist(GameWorld gw, float x, float y) {
         super(gw);
@@ -40,15 +39,15 @@ public class Terrorist extends GameObject{
         bdef.setLinearVelocity(new Vec2((float) 3,0));
         // a body
         this.body = gw.world.createBody(bdef);
-        body.setSleepingAllowed(true);
+        this.body.setSleepingAllowed(true);
         this.name = "Terrorist";
-        body.setUserData(this);
+        this.body.setUserData(this);
 
 
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(),
+        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(),
                 R.drawable.ninja_walk, o);
     }
 
@@ -58,30 +57,29 @@ public class Terrorist extends GameObject{
     private int sprite = 1;
 
 
-    private void UpdateAnimation(){
+    private void UpdateAnimation() {
         if (this.sprite == 5) {
-            this.sprite=0;
+            this.sprite = 0;
         }
         else {
-            sprite++;
+            this.sprite++;
         }
-        this.src.top=this.sprite*15;
-        this.src.bottom=this.sprite*15+15;
+        this.src.top = this.sprite * 15;
+        this.src.bottom = this.sprite * 15 + 15;
     }
 
-    private int test_timer=0;
+    private int test_timer = 0;
     private boolean bombePosed = false;
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
-        test_timer++;
-        if (test_timer==8) {
+        this.test_timer++;
+        if (this.test_timer == 8) {
             UpdateAnimation();
-            test_timer=0;
+            this.test_timer = 0;
         }
 
         if (this.body.getPositionX() > this.gw.physicalSize.xmax - 1) {
-            //this.body.setLinearVelocity(new Vec2((float) -7,0));
             AndroidFastRenderView.removeTerrorist = true;
         }
 
@@ -90,14 +88,14 @@ public class Terrorist extends GameObject{
             this.bombePosed = true;
         }
 
-        canvas.save();
-        canvas.rotate((float) Math.toDegrees(angle), x, y);
-        dest.left = x - screen_semi_width;
-        dest.bottom = y + screen_semi_height;
-        dest.right = x + screen_semi_width;
-        dest.top = y - screen_semi_height;
+        this.canvas.save();
+        this.canvas.rotate((float) Math.toDegrees(angle), x, y);
+        this.dest.left = x - screen_semi_width;
+        this.dest.bottom = y + screen_semi_height;
+        this.dest.right = x + screen_semi_width;
+        this.dest.top = y - screen_semi_height;
         // Sprite
-        canvas.drawBitmap(bitmap,src, dest, null);
-        canvas.restore();
+        this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
+        this.canvas.restore();
     }
 }

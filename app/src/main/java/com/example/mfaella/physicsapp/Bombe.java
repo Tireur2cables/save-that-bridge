@@ -46,9 +46,9 @@ public class Bombe extends GameObject  {
         bdef.setType(BodyType.kinematicBody);
         // a body
         this.body = gw.world.createBody(bdef);
-        body.setSleepingAllowed(true);
+        this.body.setSleepingAllowed(true);
         this.name = "Bombe" + instances;
-        body.setUserData(this);
+        this.body.setUserData(this);
 
         // clean up native objects
         bdef.delete();
@@ -72,7 +72,7 @@ public class Bombe extends GameObject  {
         this.dest.right = x + screen_semi_width;
         this.dest.top = y - screen_semi_height * 2;
         // Sprite
-        this.canvas.drawBitmap(bitmap, src, dest, null);
+        this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
         this.canvas.restore();
     }
 

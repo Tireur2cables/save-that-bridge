@@ -40,9 +40,9 @@ public class Anchor extends GameObject  {
         bdef.setType(BodyType.staticBody);
         // a body
         this.body = gw.world.createBody(bdef);
-        body.setSleepingAllowed(false);
+        this.body.setSleepingAllowed(false);
         this.name = "Anchor" + instances;
-        body.setUserData(this);
+        this.body.setUserData(this);
 
         CircleShape box = new CircleShape();
         box.setRadius(width / 2);
@@ -79,7 +79,7 @@ public class Anchor extends GameObject  {
         this.canvas.save();
         this.canvas.rotate((float) Math.toDegrees(angle), x, y);
         // Simple circle
-        this.canvas.drawCircle(x, y, screen_semi_width, paint);
+        this.canvas.drawCircle(x, y, screen_semi_width, this.paint);
         this.canvas.restore();
     }
 

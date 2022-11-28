@@ -156,7 +156,7 @@ public class GameWorld {
 
     public synchronized void update(float elapsedTime) {
         // advance the physics simulation
-        world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
+        this.world.step(elapsedTime, VELOCITY_ITERATIONS, POSITION_ITERATIONS, PARTICLE_ITERATIONS);
 
         if (!getOldObjectsRemoved()) {
             for (int i = 0; i < jointsToDestroy.size(); i++) {
@@ -172,18 +172,18 @@ public class GameWorld {
         }
 
         // Handle collisions
-        handleCollisions(contactListener.getCollisions());
+        handleCollisions(this.contactListener.getCollisions());
 
         // Handle touch events
-        for (Input.TouchEvent event: touchHandler.getTouchEvents())
-            touchConsumer.consumeTouchEvent(event);
+        for (Input.TouchEvent event: this.touchHandler.getTouchEvents())
+            this.touchConsumer.consumeTouchEvent(event);
     }
 
     public synchronized void render() {
         // clear the screen (with black)
-        canvas.drawARGB(255, 55, 199, 255);
-        for (GameObject obj: objects)
-            obj.draw(buffer);
+        this.canvas.drawARGB(255, 55, 199, 255);
+        for (GameObject obj: this.objects)
+            obj.draw(this.buffer);
         // drawParticles();
     }
 
@@ -198,10 +198,10 @@ public class GameWorld {
                 }
             }
             Sound sound = null;//CollisionSounds.getSound(event.a.getClass(), event.b.getClass());
-            if (sound!=null) {
+            if (sound != null) {
                 long currentTime = System.nanoTime();
-                if (currentTime - timeOfLastSound > 500_000_000) {
-                    timeOfLastSound = currentTime;
+                if (currentTime - this.timeOfLastSound > 500_000_000) {
+                    this.timeOfLastSound = currentTime;
                     sound.play(0.7f);
                 }
             }
@@ -217,7 +217,7 @@ public class GameWorld {
      * @return world (physics) x
      */
     public float screenToWorldX(float x) {
-        return currentView.xmin + x * (currentView.width / screenSize.width);
+        return this.currentView.xmin + x * (this.currentView.width / this.screenSize.width);
     }
     /**
      * from screen y to physics world y
@@ -225,7 +225,7 @@ public class GameWorld {
      * @return world (physics) y
      */
     public float screenToWorldY(float y) {
-        return currentView.ymin + y * (currentView.height / screenSize.height);
+        return this.currentView.ymin + y * (this.currentView.height / this.screenSize.height);
     }
 
     /**
@@ -234,7 +234,7 @@ public class GameWorld {
      * @return framebuffer x
      */
     public float worldToFrameBufferX(float x) {
-        return (x-currentView.xmin) / currentView.width*bufferWidth;
+        return (x - this.currentView.xmin) / this.currentView.width * this.bufferWidth;
     }
     /**
      * from physics world y to framebuffer y
@@ -242,24 +242,24 @@ public class GameWorld {
      * @return framebuffer y
      */
     public float worldToFrameBufferY(float y) {
-        return (y-currentView.ymin)/currentView.height*bufferHeight;
+        return (y - this.currentView.ymin) / this.currentView.height * this.bufferHeight;
     }
 
     public float toPixelsXLength(float x) {
-        return x/currentView.width*bufferWidth;
+        return x / this.currentView.width*bufferWidth;
     }
 
     public float toPixelsYLength(float y) {
-        return y/currentView.height*bufferHeight;
+        return y / this.currentView.height * this.bufferHeight;
     }
 
     public synchronized void setGravity(float x, float y) {
-        world.setGravity(x, y);
+        this.world.setGravity(x, y);
     }
 
     @Override
     public void finalize() {
-        world.delete();
+        this.world.delete();
     }
 
     public void setTouchHandler(TouchHandler touchHandler) {
@@ -269,7 +269,7 @@ public class GameWorld {
     void createBombe(float decalage) {
         //Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
         // probleme de placement sur la derniere jointure
-        MyRevoluteJoint j = myJoints.get(2); // level 1 : bombe 2
+        MyRevoluteJoint j = myJoints.get(2); // level 1 : bombe sur joint 2
         float bombeX = j.joint.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
         float bombeY = j.joint.getBodyB().getPositionY() - decalage;
         bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
@@ -307,7 +307,7 @@ public class GameWorld {
         for (int i = 0; i < constructCounters.size(); i++) {
             this.removeGameObject(constructCounters.get(i));
         }
-        for (int i = 0; i<2; i++){
+        for (int i = 0; i < myAnchors.length; i++) {
             this.removeGameObject(myAnchors[i]);
         }
         for (int i = 0; i < reinforcements.size(); i++) {
@@ -352,7 +352,7 @@ public class GameWorld {
         numBridgePlank = 5; // level 1 : 5 planks
         myBridge = new GameObject[numBridgePlank];
         float plankWidth = bridgeLength / numBridgePlank;
-        float plankHeight = this.physicalSize.ymax / 40 ; // thin enough
+        float plankHeight = this.physicalSize.ymax / 30 ; // thin enough
 
         // create planks
         for (int i = 0; i < myBridge.length; i++) {
@@ -379,10 +379,11 @@ public class GameWorld {
         float pc_xmin = this.physicalSize.xmin + 1;
         float pc_xmax = this.physicalSize.xmin + 3;
         float pc_ymin = this.physicalSize.ymin + 1;
-        float hauteur = 2; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
+        float hauteur = this.physicalSize.ymax / 30;
+        float padding = 0.5f;
         constructCounters = new ArrayList<>(construct);
         for (int i = 0; i < construct; i++) {
-            float new_ymin = pc_ymin + i * hauteur;
+            float new_ymin = pc_ymin + i * (hauteur + padding);
             constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
         }
 
@@ -408,7 +409,7 @@ public class GameWorld {
         numBridgePlank = 5; // level 1 : 5 planks
         myBridge = new GameObject[numBridgePlank];
         float plankWidth = bridgeLength / numBridgePlank;
-        float plankHeight = this.physicalSize.ymax / 40 ; // thin enough
+        float plankHeight = this.physicalSize.ymax / 30 ; // thin enough
 
         // create planks
         for (int i = 0; i < myBridge.length; i++)
@@ -433,7 +434,7 @@ public class GameWorld {
         float pc_xmin = this.physicalSize.xmin + 1;
         float pc_xmax = this.physicalSize.xmin + 3;
         float pc_ymin = this.physicalSize.ymin + 1;
-        float hauteur = 2; // peut etre faire max entre ça et un calcul responsive pour un nombre de planche trop élevé pour eviter les superpositions
+        float hauteur = this.physicalSize.ymax / 30;
         constructCounters = new ArrayList<>(construct);
         for (int i = 0; i < construct; i++) {
             float new_ymin = pc_ymin + i * hauteur;
@@ -454,11 +455,11 @@ public class GameWorld {
 
     public synchronized void addReinforcement(GameObject objectA, GameObject objectB){
         // if enough construct
-        if(placing) {
+        if (placing) {
             float width = (float) Math.sqrt(Math.pow(objectA.body.getPositionX() - objectB.body.getPositionX(), 2) +
                     Math.pow(objectA.body.getPositionY() - objectB.body.getPositionY(), 2));
             if (width < 12) {
-                Bridge reinforcement = new Bridge(this, 0, 10, width, 0.3f);
+                Bridge reinforcement = new Bridge(this, 0, 10, width, this.physicalSize.ymax / 30);
                 reinforcement.has_anchor = false;
                 this.addGameObject(reinforcement);
                 reinforcements.add(reinforcement);

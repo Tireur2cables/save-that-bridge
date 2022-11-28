@@ -26,8 +26,7 @@ public class TouchConsumer {
     // physical units, semi-side of a square around the touch point
     private final static float POINTER_SIZE = 0.5f;
 
-    private class TouchQueryCallback extends QueryCallback
-    {
+    private class TouchQueryCallback extends QueryCallback {
         public boolean reportFixture(Fixture fixture) {
             touchedFixture = fixture;
             return true;
@@ -39,10 +38,10 @@ public class TouchConsumer {
     */
     public TouchConsumer(GameWorld gw) {
         this.gw = gw;
+        this.oldObject = null;
     }
 
-    public void consumeTouchEvent(Input.TouchEvent event)
-    {
+    public void consumeTouchEvent(Input.TouchEvent event) {
         switch (event.type) {
             case Input.TouchEvent.TOUCH_DOWN:
                 consumeTouchDown(event);
@@ -60,58 +59,60 @@ public class TouchConsumer {
         int pointerId = event.pointer;
 
         // if we are already dragging with another finger, discard this event
-        if (mouseJoint != null) return;
+        if (this.mouseJoint != null) return;
 
-        float x = gw.screenToWorldX(event.x), y = gw.screenToWorldY(event.y);
+        float x = this.gw.screenToWorldX(event.x), y = this.gw.screenToWorldY(event.y);
 
         Log.d("MultiTouchHandler", "touch down at " + x + ", " + y);
 
-        touchedFixture = null;
-        gw.world.queryAABB(touchQueryCallback, x - POINTER_SIZE, y - POINTER_SIZE, x + POINTER_SIZE, y + POINTER_SIZE);
-        if (touchedFixture != null) {
-            // From fixture to GO
-            Body touchedBody = touchedFixture.getBody();
+        this.touchedFixture = null;
+        this.gw.world.queryAABB(this.touchQueryCallback, x - POINTER_SIZE, y - POINTER_SIZE, x + POINTER_SIZE, y + POINTER_SIZE);
+        if (this.touchedFixture != null) {
+            // From fixture to Game Object
+            Body touchedBody = this.touchedFixture.getBody();
             Object userData = touchedBody.getUserData();
             if (userData != null) {
                 GameObject touchedGO = (GameObject) userData;
-                activePointerID = pointerId;
+                this.activePointerID = pointerId;
                 Log.d("MultiTouchHandler", "touched game object " + touchedGO.name);
-                if (touchedGO instanceof Anchor || touchedGO instanceof Bridge){
-                    if (touchedGO instanceof Bridge && ((Bridge) touchedGO).has_anchor){
-                        if(oldObject instanceof Anchor){
-                            gw.addReinforcement(oldObject, touchedGO);
-                            ((Anchor) oldObject).setColor(false);
-                            oldObject = null;
+                if (touchedGO instanceof Anchor || touchedGO instanceof Bridge) {
+                    if (touchedGO instanceof Bridge && ((Bridge) touchedGO).has_anchor) { // tap on a bridge's anchor
+                        if (this.oldObject != null && this.oldObject instanceof Anchor) { // an real anchor was selected
+                            this.gw.addReinforcement(this.oldObject, touchedGO);
+                            ((Anchor) this.oldObject).setColor(false);
+                            this.oldObject = null;
                         }
-                        else{
-                            if(oldObject instanceof Bridge)
-                                ((Bridge) oldObject).setColor(false);
-                            oldObject = touchedGO;
+                        else {
+                            if (this.oldObject != null && this.oldObject instanceof Bridge && ((Bridge) this.oldObject).has_anchor) // a bridge's anchor was selected
+                                ((Bridge) this.oldObject).setColor(false);
+                            this.oldObject = touchedGO;
                             ((Bridge) touchedGO).setColor(true);
                         }
                     }
-                    else if (touchedGO instanceof Anchor){
-                        if(oldObject instanceof Bridge && ((Bridge) oldObject).has_anchor){
-                            gw.addReinforcement(touchedGO, oldObject);
-                            ((Bridge) oldObject).setColor(false);
-                            oldObject = null;
+                    else if (touchedGO instanceof Anchor) { // tap on a real anchor
+                        if (this.oldObject != null && this.oldObject instanceof Bridge && ((Bridge) this.oldObject).has_anchor) { // a bridge's anchor was selected
+                            this.gw.addReinforcement(touchedGO, this.oldObject);
+                            ((Bridge) this.oldObject).setColor(false);
+                            this.oldObject = null;
                         }
-                        else{
-                            if(oldObject instanceof Anchor)
-                                ((Anchor) oldObject).setColor(false);
-                            oldObject = touchedGO;
+                        else {
+                            if (this.oldObject != null && this.oldObject instanceof Anchor) // a real anchor was selected
+                                ((Anchor) this.oldObject).setColor(false);
+                            this.oldObject = touchedGO;
                             ((Anchor) touchedGO).setColor(true);
                         }
                     }
                 }
-                else{
-                    if(oldObject instanceof Anchor) {
-                        ((Anchor) oldObject).setColor(false);
+                else {
+                    if (this.oldObject != null) { // an anchor was selected
+                        if (this.oldObject instanceof Anchor) {
+                            ((Anchor) oldObject).setColor(false);
+                        }
+                        else if(oldObject instanceof Bridge){
+                            ((Bridge) oldObject).setColor(false);
+                        }
+                        oldObject = null;
                     }
-                    else if(oldObject instanceof Bridge){
-                        ((Bridge) oldObject).setColor(false);
-                    }
-                    oldObject = null;
                     if (touchedGO instanceof DynamicBoxGO) {
                         setupMouseJoint(x, y, touchedBody);
                     }

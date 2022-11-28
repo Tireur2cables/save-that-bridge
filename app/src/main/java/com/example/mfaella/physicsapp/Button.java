@@ -30,7 +30,7 @@ public class Button extends GameObject {
         this.body = gw.world.createBody(bdef);
         this.body.setSleepingAllowed(false);
         this.name = "Button";
-        body.setUserData(this);
+        this.body.setUserData(this);
         PolygonShape box = new PolygonShape();
         box.setAsBox(width / 2, height / 2);
         FixtureDef fixturedef = new FixtureDef();

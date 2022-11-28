@@ -34,23 +34,24 @@ public class Road extends GameObject {
         // default position is (0,0) and default type is staticBody
         this.body = gw.world.createBody(bdef);
         this.name = "Road" + instances;
-        body.setUserData(this);
-
+        this.body.setUserData(this);
+        float width = (xmax - xmin);
+        float height = (ymax - ymin);
         PolygonShape box = new PolygonShape();
         // top
-        box.setAsBox((xmax - xmin) / 2, 0, xmin + (xmax-xmin)/2, ymin, 0); // last is rotation angle
-        body.createFixture(box, 0); // no density needed
+        box.setAsBox(width / 2, 0, xmin + width / 2, ymin, 0); // last is rotation angle
+        this.body.createFixture(box, 0); // no density needed
         // right
-        box.setAsBox(0, (ymax - ymin) / 2, xmax, ymin + (ymax-ymin) / 2, 0); // last is rotation angle
-        body.createFixture(box, 0); // no density needed
+        box.setAsBox(0, height / 2, xmax, ymin + height / 2, 0); // last is rotation angle
+        this.body.createFixture(box, 0); // no density needed
         // left
-        box.setAsBox(0, (ymax - ymin) / 2, xmin, ymin + (ymax-ymin) / 2, 0); // last is rotation angle
-        body.createFixture(box, 0); // no density needed
+        box.setAsBox(0, height / 2, xmin, ymin + height / 2, 0); // last is rotation angle
+        this.body.createFixture(box, 0); // no density needed
 
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.test, o);
+        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.test, o);
 
         // clean up native objects
         bdef.delete();
@@ -61,10 +62,10 @@ public class Road extends GameObject {
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
-        paint.setARGB(255, 64, 64, 64);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth(2);
+        this.paint.setARGB(255, 64, 64, 64);
+        this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.paint.setStrokeWidth(2);
         Canvas canvas = new Canvas(buffer);
-        canvas.drawRect(this.screen_xmin, this.screen_ymin, this.screen_xmax, this.screen_ymax, paint);
+        canvas.drawRect(this.screen_xmin, this.screen_ymin, this.screen_xmax, this.screen_ymax, this.paint);
     }
 }

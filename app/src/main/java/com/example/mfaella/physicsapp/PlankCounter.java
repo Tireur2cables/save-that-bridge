@@ -29,22 +29,22 @@ public class PlankCounter extends GameObject {
         float height = Math.abs(ymax - ymin);
 
         this.canvas = new Canvas(gw.buffer); // Is this needed?
-        screen_semi_width = gw.toPixelsXLength(width)/2;
-        screen_semi_height = gw.toPixelsYLength(height)/2;
+        screen_semi_width = gw.toPixelsXLength(width) / 2;
+        screen_semi_height = gw.toPixelsYLength(height) / 2;
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
-        bdef.setPosition(xmin+width/2, ymin + height/2);
+        bdef.setPosition(xmin + width / 2, ymin + height / 2);
         bdef.setType(BodyType.kinematicBody);
         // a body
         this.body = gw.world.createBody(bdef);
-        body.setSleepingAllowed(false);
+        this.body.setSleepingAllowed(false);
         this.name = "PlankCounter" + instances;
-        body.setUserData(this);
+        this.body.setUserData(this);
 
         int color = Color.argb(255, 0, 0, 0);
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.paint.setColor(color);
+        this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         // clean up native objects
         bdef.delete();
@@ -52,7 +52,7 @@ public class PlankCounter extends GameObject {
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.creeper, o);
+        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.wood, o);
     }
 
     private final Rect src = null;
@@ -61,14 +61,14 @@ public class PlankCounter extends GameObject {
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
-        canvas.save();
-        canvas.rotate((float) Math.toDegrees(angle), x, y);
-        dest.left = x - screen_semi_width;
-        dest.bottom = y + screen_semi_height;
-        dest.right = x + screen_semi_width;
-        dest.top = y - screen_semi_height;
+        this.canvas.save();
+        this.canvas.rotate((float) Math.toDegrees(angle), x, y);
+        this.dest.left = x - screen_semi_width;
+        this.dest.bottom = y + screen_semi_height;
+        this.dest.right = x + screen_semi_width;
+        this.dest.top = y - screen_semi_height;
         // Sprite
-        canvas.drawBitmap(bitmap, src, dest, paint);
-        canvas.restore();
+        this.canvas.drawBitmap(this.bitmap, this.src, this.dest, this.paint);
+        this.canvas.restore();
     }
 }
