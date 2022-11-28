@@ -25,7 +25,7 @@ public class Button extends GameObject {
         float height = Math.abs(ymax - ymin);
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
-        bdef.setPosition(xmin + width/2, ymin + height/2);
+        bdef.setPosition(xmin + width / 2, ymin + height / 2);
         // default position is (0,0) and default type is staticBody
         this.body = gw.world.createBody(bdef);
         this.body.setSleepingAllowed(false);

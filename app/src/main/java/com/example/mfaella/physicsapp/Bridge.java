@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.google.fpl.liquidfun.BodyDef;
 import com.google.fpl.liquidfun.BodyType;
@@ -30,13 +31,15 @@ public class Bridge extends GameObject  {
 
         instances++;
 
+        Log.d("Brige" + instances, "X : " + x + " ; Y : " + y);
+
         this.canvas = new Canvas(gw.buffer);
         this.screen_semi_width = gw.toPixelsXLength(width) / 2;
         this.screen_semi_height = gw.toPixelsYLength(height) / 2;
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
-        bdef.setPosition(x, y);
+        bdef.setPosition(x + width / 2, y + height / 2);
         bdef.setType(BodyType.dynamicBody);
         // a body
         this.body = gw.world.createBody(bdef);
