@@ -89,6 +89,7 @@ public class GameWorld {
     private static GameObject worldBorder;
     private static GameObject devCube;
     private static float plankHeight;
+    private static float plankWidth;
 
     final Activity activity; // just for loading bitmaps in game objects
 
@@ -344,7 +345,7 @@ public class GameWorld {
         /* adding bridge */
         numBridgePlank = 5; // level 1 : 5 planks
         myBridge = new GameObject[numBridgePlank];
-        float plankWidth = bridgeLength / numBridgePlank;
+        plankWidth = bridgeLength / numBridgePlank;
 
         // create planks
         for (int i = 0; i < myBridge.length; i++) {
@@ -402,7 +403,7 @@ public class GameWorld {
         /* adding bridge */
         numBridgePlank = 5; // level 1 : 5 planks
         myBridge = new GameObject[numBridgePlank];
-        float plankWidth = bridgeLength / numBridgePlank;
+        plankWidth = bridgeLength / numBridgePlank;
 
         // create planks
         for (int i = 0; i < myBridge.length; i++)
@@ -452,24 +453,36 @@ public class GameWorld {
         // a is the real anchor, b is the bridge's anchor
         if (construct > 0) {
             if (placing) {
-                float width = (float) Math.sqrt(Math.pow(objectA.body.getPositionX() - objectB.body.getPositionX(), 2) +
-                        Math.pow(objectA.body.getPositionY() - objectB.body.getPositionY(), 2));
+                float wa = (objectA instanceof Road) ? ((Road) objectA).width : plankWidth;
+                float ha = (objectA instanceof Road) ? ((Road) objectA).height : plankHeight;
+                float wb = (objectB instanceof Road) ? ((Road) objectB).width : plankWidth;
+                float hb = (objectB instanceof Road) ? ((Road) objectB).height : plankHeight;
+                float dax = (objectA.body.getPositionX() < objectB.body.getPositionX()) ? wa / 2 : -wa / 2;
+                float day = (objectA.body.getPositionY() < objectB.body.getPositionY()) ? ha / 2 : -ha / 2;
+                float dbx = (objectA.body.getPositionX() < objectB.body.getPositionX()) ? -wb / 2 : wb / 2;
+                float dby = (objectA.body.getPositionY() < objectB.body.getPositionY()) ? -hb / 2 : hb / 2;
+                float width = (float) Math.sqrt(Math.pow(objectA.body.getPositionX() + dax - objectB.body.getPositionX() + dbx, 2) +
+                        Math.pow(objectA.body.getPositionY() + day - objectB.body.getPositionY() + dby, 2));
                 if (width < 12) { // empeche les planches trop longues
-                    //float x = ;
-                    //float y = ;
-                    //float angle = ;
-                    Bridge reinforcement = new Bridge(this, 0, 10, width, plankHeight);
-                    reinforcement.has_anchor = false;
-                    //reinforcement.body.setTransform(x + width / 2, y + plankHeight / 2, angle);
+                    float x = Math.min(objectA.body.getPositionX(), objectB.body.getPositionX()) + Math.abs(objectA.body.getPositionX() - objectB.body.getPositionX()) / 2;
+                    float y = Math.min(objectA.body.getPositionY(), objectB.body.getPositionY()) + Math.abs(objectA.body.getPositionY() - objectB.body.getPositionY()) / 2;
+                    float a = Math.abs(objectA.body.getPositionY() - objectB.body.getPositionY());
+                    float c = Math.abs(objectA.body.getPositionX() - objectB.body.getPositionX());
+                    float b = (float) Math.sqrt(Math.pow(a, 2) + Math.pow(c, 2));
+                    float angle = (float) ((objectA.body.getPositionX() < objectB.body.getPositionX()) ? 3.14/2 + Math.atan(c / a) : 3.14/2 - Math.atan(c / a) );
+                    ReinfBridge reinforcement = new ReinfBridge(this, x, y, width, plankHeight, angle);
                     this.addGameObject(reinforcement);
                     reinforcements.add(reinforcement);
-                    if (objectA.body.getPositionX() < reinforcement.body.getPositionX()) {
-                        myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, -width / 2, 0, 0, 0));
-                        myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, width / 2, 0, 0, 0));
-                    } else {
-                        myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, width / 2, 0, 0, 0));
-                        myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, -width / 2, 0, 0, 0));
+                    /*
+                    if (objectA.body.getPositionX() < reinforcement.body.getPositionX() && objectA.body.getPositionY() > reinforcement.body.getPositionY()) {
+                        myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, -Math.abs(objectA.body.getPositionX() - objectB.body.getPositionX()) / 2, Math.abs(objectA.body.getPositionY() - objectB.body.getPositionY()) / 2, 0, 0));
+                        myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, Math.abs(objectA.body.getPositionX() - objectB.body.getPositionX()) / 2,-Math.abs(objectA.body.getPositionY() - objectB.body.getPositionY()) / 2, 0, 0));
+                    } else if (objectB.body.getPositionX() < reinforcement.body.getPositionX() && objectB.body.getPositionY() > reinforcement.body.getPositionY()) {
+                        myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, Math.abs(objectA.body.getPositionX() - objectB.body.getPositionX()) / 2, -Math.abs(objectA.body.getPositionY() - objectB.body.getPositionY()) / 2, -wa / 2, ha / 2));
+                        myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, -Math.abs(objectA.body.getPositionX() - objectB.body.getPositionX()) / 2, Math.abs(objectA.body.getPositionY() - objectB.body.getPositionY()) / 2, wb / 2, -hb / 2));
                     }
+                    incrConstruct();
+                     */
                 }
             }
         }

@@ -31,12 +31,12 @@ public class Road extends GameObject {
         this.screen_ymin = gw.worldToFrameBufferY(ymin);
         this.screen_ymax = gw.worldToFrameBufferY(ymax);
 
-        this.width = (xmax - xmin);
-        this.height = (ymax - ymin);
+        this.width = Math.abs(xmax - xmin);
+        this.height = Math.abs(ymax - ymin);
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
-        // default position is (0,0) and default type is staticBody
+        // default type is staticBody
         bdef.setPosition(xmin + width / 2, ymin + height / 2);
         this.body = gw.world.createBody(bdef);
         this.name = "Road" + instances;
@@ -44,15 +44,16 @@ public class Road extends GameObject {
 
         PolygonShape box = new PolygonShape();
         // top
-        box.setAsBox(width / 2, 0, xmin + width / 2, ymin, 0); // last is rotation angle
+        box.setAsBox(width / 2, height / 2); // last is rotation angle
         this.body.createFixture(box, 0); // no density needed
+        /*
         // right
         box.setAsBox(0, height / 2, xmax, ymin + height / 2, 0); // last is rotation angle
         this.body.createFixture(box, 0); // no density needed
         // left
         box.setAsBox(0, height / 2, xmin, ymin + height / 2, 0); // last is rotation angle
         this.body.createFixture(box, 0); // no density needed
-
+        */
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;

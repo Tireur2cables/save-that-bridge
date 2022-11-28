@@ -11,11 +11,10 @@ import android.util.Log;
 
 import com.google.fpl.liquidfun.BodyDef;
 import com.google.fpl.liquidfun.BodyType;
-import com.google.fpl.liquidfun.Fixture;
 import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.PolygonShape;
 
-public class Bridge extends GameObject  {
+public class ReinfBridge extends GameObject  {
     private static final float density = 1f;
     private static final float friction = 0.1f;
     private static final float restitution = 0.4f;
@@ -24,9 +23,9 @@ public class Bridge extends GameObject  {
 
     private final Canvas canvas;
     private final Paint paint = new Paint();
-    public boolean has_anchor = true;
+    public boolean has_anchor = false;
 
-    public Bridge(GameWorld gw, float x, float y, float width, float height) {
+    public ReinfBridge(GameWorld gw, float x, float y, float width, float height, float angle) {
         super(gw);
 
         instances++;
@@ -37,12 +36,13 @@ public class Bridge extends GameObject  {
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
-        bdef.setPosition(x + width / 2, y + height / 2);
+        bdef.setPosition(x, y);
         bdef.setType(BodyType.dynamicBody);
         // a body
         this.body = gw.world.createBody(bdef);
         this.body.setSleepingAllowed(false);
-        this.name = "Bridge" + instances;
+        this.body.setTransform(x, y, angle);
+        this.name = "ReinfBridge" + instances;
         this.body.setUserData(this);
 
         PolygonShape box = new PolygonShape();
