@@ -17,6 +17,8 @@ public class Road extends GameObject {
 
     private Paint paint = new Paint();
     private final float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
+    final float width;
+    final float height;
     private static int instances = 0;
 
     public Road(GameWorld gw, float xmin, float xmax, float ymin, float ymax) {
@@ -29,14 +31,17 @@ public class Road extends GameObject {
         this.screen_ymin = gw.worldToFrameBufferY(ymin);
         this.screen_ymax = gw.worldToFrameBufferY(ymax);
 
+        this.width = (xmax - xmin);
+        this.height = (ymax - ymin);
+
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
         // default position is (0,0) and default type is staticBody
+        bdef.setPosition(xmin + width / 2, ymin + height / 2);
         this.body = gw.world.createBody(bdef);
         this.name = "Road" + instances;
         this.body.setUserData(this);
-        float width = (xmax - xmin);
-        float height = (ymax - ymin);
+
         PolygonShape box = new PolygonShape();
         // top
         box.setAsBox(width / 2, 0, xmin + width / 2, ymin, 0); // last is rotation angle

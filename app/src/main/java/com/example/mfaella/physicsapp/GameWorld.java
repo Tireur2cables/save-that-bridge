@@ -88,6 +88,7 @@ public class GameWorld {
     private static GameObject buttonReady;
     private static GameObject worldBorder;
     private static GameObject devCube;
+    private static float plankHeight;
 
     final Activity activity; // just for loading bitmaps in game objects
 
@@ -125,6 +126,7 @@ public class GameWorld {
         this.canvas = new Canvas(this.buffer);
 
         bridgeLength = (res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin)) * 2.0f / 3.0f;
+        plankHeight = this.physicalSize.ymax / 30;
     }
 
     public synchronized GameObject addGameObject(GameObject obj) {
@@ -266,15 +268,6 @@ public class GameWorld {
         this.touchHandler = touchHandler;
     }
 
-    void createBombe(float decalage) {
-        //Joint j = this.myJoints.get(new Random().nextInt(myJoints.size())).joint; // random joint => need to change ?
-        // probleme de placement sur la derniere jointure
-        MyRevoluteJoint j = myJoints.get(2); // level 1 : bombe sur joint 2
-        float bombeX = j.joint.getBodyB().getPositionX(); // the body b is always at the beginning of the joint
-        float bombeY = j.joint.getBodyB().getPositionY() - decalage;
-        bombe = new Bombe(this, bombeX, bombeY, j, this.activity.getResources());
-    }
-
     synchronized void nextLevel() {
         level++;
         switch (level) {
@@ -352,7 +345,6 @@ public class GameWorld {
         numBridgePlank = 5; // level 1 : 5 planks
         myBridge = new GameObject[numBridgePlank];
         float plankWidth = bridgeLength / numBridgePlank;
-        float plankHeight = this.physicalSize.ymax / 30 ; // thin enough
 
         // create planks
         for (int i = 0; i < myBridge.length; i++) {
@@ -362,16 +354,19 @@ public class GameWorld {
         // create joints
         myJoints = new ArrayList<>(numRoads + numBridgePlank);
         myJoints.add(new MyRevoluteJoint(this, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2,
-                -bridgeLength / 2, -plankHeight / 2)); // joint between road and plank
+                ((Road) myRoad[0]).width / 2, -((Road) myRoad[0]).height / 2)); // joint between road and plank
         for (int i = 0; i < myBridge.length - 1; i++) { // joints between planks
-            myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i + 1].body, -plankWidth / 2, plankHeight / 2,
-                    plankWidth / 2, plankHeight / 2));
+            myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i + 1].body, -plankWidth / 2, -plankHeight / 2,
+                    plankWidth / 2, -plankHeight / 2));
         }
-        myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, bridgeLength / 2, -plankHeight / 2,
+        myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, -((Road) myRoad[0]).width / 2, -((Road) myRoad[0]).height / 2,
                 plankWidth / 2, -plankHeight / 2)); // joint between plank and road
 
         /* bombe + terrorist */
-        this.createBombe(plankHeight);
+        // working index : 0,1,2,3,4
+        // index 5 (last) has road as joint's body B so need to change bombe coords
+        MyRevoluteJoint j = myJoints.get(2); // level 1 : bombe on joint 2
+        bombe = new Bombe(this, j.joint.getBodyB().getPositionX() - plankWidth / 2, j.joint.getBodyB().getPositionY() - plankHeight, j, this.activity.getResources());
         terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
         this.addGameObject(terrorist);
 
@@ -379,12 +374,11 @@ public class GameWorld {
         float pc_xmin = this.physicalSize.xmin + 1;
         float pc_xmax = this.physicalSize.xmin + 3;
         float pc_ymin = this.physicalSize.ymin + 1;
-        float hauteur = this.physicalSize.ymax / 30;
         float padding = 0.5f;
         constructCounters = new ArrayList<>(construct);
         for (int i = 0; i < construct; i++) {
-            float new_ymin = pc_ymin + i * (hauteur + padding);
-            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
+            float new_ymin = pc_ymin + i * (plankHeight + padding);
+            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + plankHeight)));
         }
 
         reinforcements = new ArrayList<>(construct);
@@ -409,7 +403,6 @@ public class GameWorld {
         numBridgePlank = 5; // level 1 : 5 planks
         myBridge = new GameObject[numBridgePlank];
         float plankWidth = bridgeLength / numBridgePlank;
-        float plankHeight = this.physicalSize.ymax / 30 ; // thin enough
 
         // create planks
         for (int i = 0; i < myBridge.length; i++)
@@ -426,7 +419,10 @@ public class GameWorld {
                 plankWidth / 2, -plankHeight / 2)); // joint between plank and road
 
         /* bombe + terrorist */
-        this.createBombe(plankHeight);
+        // working index : 0,1,2,3,4
+        // index 5 (last) has road as joint's body B so need to change bombe coords
+        MyRevoluteJoint j = myJoints.get(3); // level 2 : bombe on joint 3
+        bombe = new Bombe(this, j.joint.getBodyB().getPositionX() - plankWidth / 2, j.joint.getBodyB().getPositionY() - plankHeight, j, this.activity.getResources());
         terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
         this.addGameObject(terrorist);
 
@@ -434,11 +430,10 @@ public class GameWorld {
         float pc_xmin = this.physicalSize.xmin + 1;
         float pc_xmax = this.physicalSize.xmin + 3;
         float pc_ymin = this.physicalSize.ymin + 1;
-        float hauteur = this.physicalSize.ymax / 30;
         constructCounters = new ArrayList<>(construct);
         for (int i = 0; i < construct; i++) {
-            float new_ymin = pc_ymin + i * hauteur;
-            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + hauteur)));
+            float new_ymin = pc_ymin + i * plankHeight;
+            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + plankHeight)));
         }
 
         reinforcements = new ArrayList<>(construct);
@@ -453,22 +448,28 @@ public class GameWorld {
         }
     }
 
-    public synchronized void addReinforcement(GameObject objectA, GameObject objectB){
-        // if enough construct
-        if (placing) {
-            float width = (float) Math.sqrt(Math.pow(objectA.body.getPositionX() - objectB.body.getPositionX(), 2) +
-                    Math.pow(objectA.body.getPositionY() - objectB.body.getPositionY(), 2));
-            if (width < 12) {
-                Bridge reinforcement = new Bridge(this, 0, 10, width, this.physicalSize.ymax / 30);
-                reinforcement.has_anchor = false;
-                this.addGameObject(reinforcement);
-                reinforcements.add(reinforcement);
-                if (objectA.body.getPositionX() < reinforcement.body.getPositionX()) {
-                    myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, -width / 2, 0, 0, 0));
-                    myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, width / 2, 0, 0, 0));
-                } else {
-                    myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, width / 2, 0, 0, 0));
-                    myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, -width / 2, 0, 0, 0));
+    public synchronized void addReinforcement(GameObject objectA, GameObject objectB) {
+        // a is the real anchor, b is the bridge's anchor
+        if (construct > 0) {
+            if (placing) {
+                float width = (float) Math.sqrt(Math.pow(objectA.body.getPositionX() - objectB.body.getPositionX(), 2) +
+                        Math.pow(objectA.body.getPositionY() - objectB.body.getPositionY(), 2));
+                if (width < 12) { // empeche les planches trop longues
+                    //float x = ;
+                    //float y = ;
+                    //float angle = ;
+                    Bridge reinforcement = new Bridge(this, 0, 10, width, plankHeight);
+                    reinforcement.has_anchor = false;
+                    //reinforcement.body.setTransform(x + width / 2, y + plankHeight / 2, angle);
+                    this.addGameObject(reinforcement);
+                    reinforcements.add(reinforcement);
+                    if (objectA.body.getPositionX() < reinforcement.body.getPositionX()) {
+                        myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, -width / 2, 0, 0, 0));
+                        myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, width / 2, 0, 0, 0));
+                    } else {
+                        myJoints.add(new MyRevoluteJoint(this, objectA.body, reinforcement.body, width / 2, 0, 0, 0));
+                        myJoints.add(new MyRevoluteJoint(this, objectB.body, reinforcement.body, -width / 2, 0, 0, 0));
+                    }
                 }
             }
         }
