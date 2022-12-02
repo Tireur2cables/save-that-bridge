@@ -1,28 +1,25 @@
 package com.example.mfaella.physicsapp;
 
 import com.google.fpl.liquidfun.Body;
+import com.google.fpl.liquidfun.DistanceJointDef;
 import com.google.fpl.liquidfun.Joint;
 import com.google.fpl.liquidfun.PrismaticJointDef;
-import com.google.fpl.liquidfun.RevoluteJointDef;
 
 /**
  *
  * Created by mfaella on 27/02/16.
  */
-public class MyPrismaticJoint {
+public class MyDistanceJoint {
     Joint joint;
 
-    public MyPrismaticJoint(GameWorld gw, Body a, Body b) {
-        PrismaticJointDef jointDef = new PrismaticJointDef();
+    public MyDistanceJoint(GameWorld gw, Body a, Body b, float maxLength) {
+        DistanceJointDef jointDef = new DistanceJointDef();
         jointDef.setBodyA(a);
         jointDef.setBodyB(b);
         jointDef.setLocalAnchorA(0, 0);
         jointDef.setLocalAnchorB(0, 0);
-        jointDef.setLocalAxisA(1f,1f);
-        // add friction
-        jointDef.setEnableMotor(true);
-        jointDef.setMotorSpeed(0f); // target speed
-        jointDef.setMaxMotorForce(10f);
+        jointDef.setLength(maxLength);
+
         this.joint = gw.world.createJoint(jointDef);
 
         jointDef.delete();

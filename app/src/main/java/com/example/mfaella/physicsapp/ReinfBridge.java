@@ -15,7 +15,7 @@ import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.PolygonShape;
 
 public class ReinfBridge extends GameObject  {
-    private static final float density = 1f;
+    private static final float density = 3f;
     private static final float friction = 0.1f;
     private static final float restitution = 0.4f;
     private final float screen_semi_width, screen_semi_height;

@@ -16,7 +16,7 @@ import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.PolygonShape;
 
 public class Bridge extends GameObject  {
-    private static final float density = 1f;
+    private static final float density = 3f;
     private static final float friction = 0.1f;
     private static final float restitution = 0.4f;
     private final float screen_semi_width, screen_semi_height;
@@ -24,7 +24,7 @@ public class Bridge extends GameObject  {
 
     private final Canvas canvas;
     private final Paint paint = new Paint();
-    public boolean has_anchor = true;
+    public boolean has_anchor = false;
 
     public Bridge(GameWorld gw, float x, float y, float width, float height) {
         super(gw);
@@ -37,7 +37,7 @@ public class Bridge extends GameObject  {
 
         // a body definition: position and type
         BodyDef bdef = new BodyDef();
-        bdef.setPosition(x + width / 2, y + height / 2);
+        bdef.setPosition(x + width / 2, y);
         bdef.setType(BodyType.dynamicBody);
         // a body
         this.body = gw.world.createBody(bdef);
@@ -63,12 +63,9 @@ public class Bridge extends GameObject  {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.wood, o);
-
-        if (this.has_anchor) {
-            int color = Color.argb(200, 250, 0, 0);
-            this.paint.setColor(color);
-            this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        }
+        int color = Color.argb(200, 250, 0, 0);
+        this.paint.setColor(color);
+        this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 
     public void setColor(boolean selected) {

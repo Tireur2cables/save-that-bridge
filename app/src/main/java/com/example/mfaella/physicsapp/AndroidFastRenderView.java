@@ -125,7 +125,6 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
 
             if (launchNextLevel) {
                 if (GameWorld.readyForNextLevel) {
-                    Log.i("------------------", "IIIIIIIIIIIIIIIIIIIICCCCCCCCCIIIIIIIIIIIII");
                     this.gameworld.nextLevel();
                     launchNextLevel = false;
                 }

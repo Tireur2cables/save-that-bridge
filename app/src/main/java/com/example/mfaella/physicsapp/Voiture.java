@@ -16,9 +16,9 @@ import com.google.fpl.liquidfun.Vec2;
 
 public class Voiture extends GameObject{
 
-    static final float width = 2.5f, height = 1f, density = 2f;
-    private static final float friction = 0.1f;
-    private static final float restitution = 0.4f;
+    static final float width = 2.5f, height = 1f, density = 7f;
+    private static final float friction = 0f;
+    private static final float restitution = 0f;
 
     private static float screen_semi_width, screen_semi_height;
 

@@ -6,4 +6,6 @@
     <integer name="world_xmin">-15</integer>
     <integer name="frame_buffer_height">400</integer>
     <integer name="frame_buffer_width">600</integer>
+    <integer name="gravity_x">0</integer>
+    <integer name="gravity_y">2</integer>
 </resources>

@@ -24,7 +24,7 @@ import com.google.fpl.liquidfun.Vec2;
  * Created by mfaella on 27/02/16.
  */
 public class DynamicBoxGO extends GameObject {
-    private static final float width = 2.5f, height = 2.5f, density = 0.5f;
+    private static final float width = 2.5f, height = 2.5f, density = 2.5f;
     private static final float friction = 0.1f;
     private static final float restitution = 0.4f;
     private static float screen_semi_width, screen_semi_height;

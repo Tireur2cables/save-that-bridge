@@ -14,9 +14,9 @@ import com.google.fpl.liquidfun.PolygonShape;
 
 public class Roue extends GameObject {
 
-    static final float width = 1f, height = 1f, density = 0.1f;
-    private static final float friction = 0.1f;
-    private static final float restitution = 0.4f;
+    static final float width = 1f, height = 1f, density = 0.7f;
+    private static final float friction = 1f;
+    private static final float restitution = 0.1f;
 
     private static float screen_semi_width, screen_semi_height;
 
@@ -52,7 +52,7 @@ public class Roue extends GameObject {
         fixturedef.setDensity(density);     // default 0
         this.body.createFixture(fixturedef);
 
-        int color = Color.argb(255, 255, 0, 0);
+        int color = Color.argb(255, 10, 10, 10);
         this.paint.setColor(color);
         this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
 

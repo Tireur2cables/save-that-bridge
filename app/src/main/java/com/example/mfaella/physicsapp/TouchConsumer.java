@@ -78,7 +78,7 @@ public class TouchConsumer {
                 if (touchedGO instanceof Anchor || touchedGO instanceof Bridge) {
                     if (touchedGO instanceof Bridge && ((Bridge) touchedGO).has_anchor) { // tap on a bridge's anchor
                         if (this.oldObject != null && this.oldObject instanceof Anchor) { // an real anchor was selected
-                            this.gw.addReinforcement(this.oldObject, touchedGO); // first arg is real anchor second is the bridge's anchor
+                            this.gw.addReinforcement(this.oldObject, touchedGO);
                             ((Anchor) this.oldObject).setColor(false);
                             this.oldObject = null;
                         }
@@ -91,7 +91,7 @@ public class TouchConsumer {
                     }
                     else if (touchedGO instanceof Anchor) { // tap on a real anchor
                         if (this.oldObject != null && this.oldObject instanceof Bridge && ((Bridge) this.oldObject).has_anchor) { // a bridge's anchor was selected
-                            this.gw.addReinforcement(touchedGO, this.oldObject); // first arg is real anchor second is the bridge's anchor
+                            this.gw.addReinforcement(touchedGO, this.oldObject);
                             ((Bridge) this.oldObject).setColor(false);
                             this.oldObject = null;
                         }
