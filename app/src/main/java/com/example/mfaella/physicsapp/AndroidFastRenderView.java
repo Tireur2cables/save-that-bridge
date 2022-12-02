@@ -25,6 +25,8 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     static boolean playerStart = false;
     static boolean removeTerrorist = false;
     private static boolean launchNextLevel = false;
+    private static int timerCar = 0;
+    private static int timerExplosion = 0;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -95,19 +97,32 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             }
 
             if (playerFinish) {
-                if (GameWorld.bombe != null) {
-                    GameWorld.bombe.explode();
-                    this.gameworld.removeGameObject(GameWorld.bombe);
-                    GameWorld.setOldObjectsRemoved(false);
-                    GameWorld.bombe = null;
+                // lancer un décompte
+                if(fpsDeltaTime > 1) {
+                    timerExplosion++;
+                    GameWorld.timer--;
+                    if (GameWorld.bombe != null && timerExplosion==4) {
+                        GameWorld.bombe.explode();
+                        this.gameworld.removeGameObject(GameWorld.bombe);
+                        GameWorld.setOldObjectsRemoved(false);
+                        GameWorld.bombe = null;
+                        timerExplosion=0;
+                        playerFinish = false;
+                        verifLevel = true;
+                        GameWorld.timer =4;
+                    }
                 }
-                playerFinish = false;
-                verifLevel = true;
             }
 
             if (verifLevel) {
-                this.gameworld.verifLevel();
-                verifLevel = false;
+                if (fpsDeltaTime > 1) {
+                    timerCar++;
+                    if(timerCar==5) {
+                        this.gameworld.verifLevel();
+                        verifLevel = false;
+                        timerCar=0;
+                    }
+                }
             }
 
             if (verifWin) {

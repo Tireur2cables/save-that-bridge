@@ -23,13 +23,17 @@ public class Bombe extends GameObject  {
     private static int instances = 0;
 
     private final Canvas canvas;
+    private final Paint paint = new Paint();
     private MyRevoluteJoint joint;
     private GameWorld gw;
+    public float x,y;
 
     public Bombe(GameWorld gw, float x, float y, MyRevoluteJoint joint, Resources res) {
         super(gw);
 
         instances++;
+        this.x = x;
+        this.y = y;
         this.joint = joint;
         this.gw = gw;
         float width = res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin);
@@ -50,6 +54,8 @@ public class Bombe extends GameObject  {
         this.name = "Bombe" + instances;
         this.body.setUserData(this);
 
+        paint.setTextSize(150);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
         // clean up native objects
         bdef.delete();
 
@@ -73,6 +79,18 @@ public class Bombe extends GameObject  {
         this.dest.top = y - screen_semi_height * 2;
         // Sprite
         this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
+        if(GameWorld.timer ==3){
+            paint.setARGB(255,255,255,0);
+            this.canvas.drawText("3",this.gw.screenSize.ymax/4,this.gw.screenSize.ymax/4,paint);
+        }
+        else if(GameWorld.timer ==2){
+            paint.setARGB(255,255,150,0);
+            this.canvas.drawText("2",this.gw.screenSize.ymax/4,this.gw.screenSize.ymax/4,paint);
+        }
+        else if(GameWorld.timer ==1){
+            paint.setARGB(255,255,0,0);
+            this.canvas.drawText("1",this.gw.screenSize.ymax/4,this.gw.screenSize.ymax/4,paint);
+        }
         this.canvas.restore();
     }
 
@@ -80,6 +98,7 @@ public class Bombe extends GameObject  {
         GameWorld.jointsToDestroy.add(this.joint.joint);
         GameWorld.myJoints.remove(this.joint);
         GameWorld.setOldObjectsRemoved(false);
+        this.gw.summonParticles(this.x,this.y);
         this.joint = null;
     }
 

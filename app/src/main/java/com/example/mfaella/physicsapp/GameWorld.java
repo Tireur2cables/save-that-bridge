@@ -64,6 +64,7 @@ public class GameWorld {
 
     static boolean oldObjectsRemoved = true;
     static boolean readyForNextLevel = true;
+    static int timer=4;
     private static boolean placing = true;
 
     // gameobjects
@@ -88,6 +89,7 @@ public class GameWorld {
     private static GameObject buttonReady;
     private static GameObject worldBorder;
     private static GameObject devCube;
+    private static  GameObject particules;
     private static float plankHeight;
     private static float plankWidth;
 
@@ -451,6 +453,12 @@ public class GameWorld {
             g.gw.removeGameObject(g);
             setOldObjectsRemoved(false);
         }
+    }
+
+    public void summonParticles(float x,float y){
+        BombParticles particles = new BombParticles(this,x,y);
+        particules=particles;
+        this.addGameObject(particles);
     }
 
     public synchronized void addReinforcement(GameObject objectA, GameObject objectB) {
