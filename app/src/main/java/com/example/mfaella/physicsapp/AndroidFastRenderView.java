@@ -27,6 +27,7 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     private static boolean launchNextLevel = false;
     private static int timerCar = 0;
     private static int timerExplosion = 0;
+    private static boolean decrTimer = false;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -89,6 +90,14 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
             if (playerStart) {
                 this.gameworld.setConstructZones();
                 playerStart = false;
+                decrTimer = true;
+            }
+
+            if (decrTimer && fpsDeltaTime > 1) {
+                UI.decrTimer();// level timer
+                if (UI.getTimer() == 0) { // end of player part earlier than
+                    playerFinish = true;
+                }
             }
 
             if (GameWorld.construct == 0) {
@@ -111,6 +120,10 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                         verifLevel = true;
                         GameWorld.timer =4;
                     }
+                }
+                decrTimer = false;
+                for (GameObject b : GameWorld.myBridge) {
+                    ((Bridge) b).has_anchor = false;
                 }
             }
 

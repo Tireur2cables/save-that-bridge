@@ -64,14 +64,14 @@ public class GameWorld {
 
     static boolean oldObjectsRemoved = true;
     static boolean readyForNextLevel = true;
-    static int timer=4;
+    static int timer = 4;
     private static boolean placing = true;
 
     // gameobjects
     private static int numRoads;
     private static GameObject[] myRoad;
     private static int numBridgePlank;
-    private static GameObject[] myBridge;
+    static GameObject[] myBridge;
     private static GameObject[] myAnchors;
 
     static Bombe bombe;
@@ -89,7 +89,6 @@ public class GameWorld {
     private static GameObject buttonReady;
     private static GameObject worldBorder;
     private static GameObject devCube;
-    private static  GameObject particules;
     private static float plankHeight;
     private static float plankWidth;
 
@@ -131,6 +130,7 @@ public class GameWorld {
 
         bridgeLength = (res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin)) * 2.0f / 3.0f;
         plankHeight = this.physicalSize.ymax / 30;
+        this.addGameObject(new UI(this));
     }
 
     public synchronized GameObject addGameObject(GameObject obj) {
@@ -332,6 +332,8 @@ public class GameWorld {
     }
 
     private void level1() {
+        UI.setLevel(1); // level 1
+        UI.setTimer(-1); // infinite timer
         placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
@@ -390,6 +392,8 @@ public class GameWorld {
     }
 
     private void level2() {
+        UI.setLevel(2); // level 2
+        UI.setTimer(30); // 30sec
         placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
@@ -458,7 +462,6 @@ public class GameWorld {
 
     public void summonParticles(float x,float y){
         BombParticles particles = new BombParticles(this,x,y);
-        particules=particles;
         this.addGameObject(particles);
     }
 
@@ -515,9 +518,6 @@ public class GameWorld {
     public synchronized void verifLevel() {
         placing = false;
         verified = false;
-        for (GameObject b : myBridge) {
-            ((Bridge) b).has_anchor = false;
-        }
         voiture = this.addGameObject(new Voiture(this, this.physicalSize.xmin + 2, 0));
         roues[0] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1));
         roues[1] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1));

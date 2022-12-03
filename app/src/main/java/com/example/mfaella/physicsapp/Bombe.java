@@ -81,15 +81,15 @@ public class Bombe extends GameObject  {
         this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
         if(GameWorld.timer ==3){
             paint.setARGB(255,255,255,0);
-            this.canvas.drawText("3",this.gw.screenSize.ymax/4,this.gw.screenSize.ymax/4,paint);
+            this.canvas.drawText("3",this.gw.screenSize.xmax/9,this.gw.screenSize.ymax/4,paint);
         }
-        else if(GameWorld.timer ==2){
+        else if(GameWorld.timer == 2){
             paint.setARGB(255,255,150,0);
-            this.canvas.drawText("2",this.gw.screenSize.ymax/4,this.gw.screenSize.ymax/4,paint);
+            this.canvas.drawText("2",this.gw.screenSize.xmax/9,this.gw.screenSize.ymax/4,paint);
         }
-        else if(GameWorld.timer ==1){
+        else if(GameWorld.timer == 1){
             paint.setARGB(255,255,0,0);
-            this.canvas.drawText("1",this.gw.screenSize.ymax/4,this.gw.screenSize.ymax/4,paint);
+            this.canvas.drawText("1",this.gw.screenSize.xmax/9,this.gw.screenSize.ymax/4,paint);
         }
         this.canvas.restore();
     }
