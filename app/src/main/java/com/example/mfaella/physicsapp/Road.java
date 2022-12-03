@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 
 import com.google.fpl.liquidfun.BodyDef;
 import com.google.fpl.liquidfun.PolygonShape;
@@ -15,21 +17,19 @@ import com.google.fpl.liquidfun.PolygonShape;
  */
 public class Road extends GameObject {
 
-    private Paint paint = new Paint();
-    private final float screen_xmin, screen_xmax, screen_ymin, screen_ymax;
     final float width;
     final float height;
     private static int instances = 0;
+    private final Canvas canvas;
+    private Bitmap bitmap;
+    private final RectF dest = new RectF();
+    public int level=1;
 
     public Road(GameWorld gw, float xmin, float xmax, float ymin, float ymax) {
         super(gw);
 
         instances++;
-
-        this.screen_xmin = gw.worldToFrameBufferX(xmin);
-        this.screen_xmax = gw.worldToFrameBufferX(xmax);
-        this.screen_ymin = gw.worldToFrameBufferY(ymin);
-        this.screen_ymax = gw.worldToFrameBufferY(ymax);
+        this.canvas = new Canvas(gw.buffer);
 
         this.width = Math.abs(xmax - xmin);
         this.height = Math.abs(ymax - ymin);
@@ -46,32 +46,45 @@ public class Road extends GameObject {
         // top
         box.setAsBox(width / 2, height / 2); // last is rotation angle
         this.body.createFixture(box, 0); // no density needed
-        /*
-        // right
-        box.setAsBox(0, height / 2, xmax, ymin + height / 2, 0); // last is rotation angle
-        this.body.createFixture(box, 0); // no density needed
-        // left
-        box.setAsBox(0, height / 2, xmin, ymin + height / 2, 0); // last is rotation angle
-        this.body.createFixture(box, 0); // no density needed
-        */
+
         // Prevents scaling
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
-        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.test, o);
+        this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.road, o);
+
+        this.dest.top= 200; this.dest.bottom=400;
+        if(xmin>0){
+            this.dest.left = 500;
+            this.dest.right = 600;
+        }
+        else {
+            this.dest.left = 0;
+            this.dest.right = 100;
+        }
 
         // clean up native objects
         bdef.delete();
         box.delete();
     }
 
-    private Bitmap bitmap;
+    public void change_level(){
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inScaled = false;
+        if (this.level==1){
+            this.level=2;
+            this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.beach_road, o);
+        }
+        else{
+            this.level=1;
+            this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.road, o);
+        }
+    }
 
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
-        this.paint.setARGB(255, 64, 64, 64);
-        this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.paint.setStrokeWidth(2);
-        Canvas canvas = new Canvas(buffer);
-        canvas.drawRect(this.screen_xmin, this.screen_ymin, this.screen_xmax, this.screen_ymax, this.paint);
+        if(GameWorld.level !=this.level) this.change_level();
+        this.canvas.save();
+        this.canvas.drawBitmap(this.bitmap,null,this.dest,null );
+        this.canvas.restore();
     }
 }

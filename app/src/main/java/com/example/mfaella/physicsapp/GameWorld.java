@@ -3,8 +3,11 @@ package com.example.mfaella.physicsapp;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.util.Log;
 
@@ -37,7 +40,7 @@ public class GameWorld {
     private final int bufferWidth, bufferHeight;    // actual pixels
     Bitmap buffer;
     private Canvas canvas;
-    private Paint particlePaint;
+    private Bitmap bitmap;
 
     // Simulation
     List<GameObject> objects;
@@ -88,6 +91,7 @@ public class GameWorld {
     private static GameObject buttonReady;
     private static GameObject worldBorder;
     private static GameObject devCube;
+    private static RectF dest;
     private static float plankHeight;
     private static float plankWidth;
 
@@ -126,6 +130,7 @@ public class GameWorld {
 
         this.objects = new ArrayList<>();
         this.canvas = new Canvas(this.buffer);
+        dest = new RectF(); dest.left = 0; dest.bottom = 400; dest.right = 600; dest.top = 0;
 
         bridgeLength = (res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin)) * 2.0f / 3.0f;
         plankHeight = this.physicalSize.ymax / 30;
@@ -188,7 +193,9 @@ public class GameWorld {
 
     public synchronized void render() {
         // clear the screen (with black)
-        this.canvas.drawARGB(255, 55, 199, 255);
+        this.canvas.save();
+        this.canvas.drawBitmap(this.bitmap, null, dest, null);
+        this.canvas.restore();
         for (GameObject obj: this.objects)
             obj.draw(this.buffer);
         // drawParticles();
@@ -328,6 +335,10 @@ public class GameWorld {
     }
 
     private void level1() {
+        level = 1;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inScaled = false;
+        this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.background, o);
         UI.setLevel(1); // level 1
         UI.setScore(0); // initial score
         UI.setTimer(-1); // infinite timer
@@ -381,6 +392,10 @@ public class GameWorld {
     }
 
     private void level2() {
+        level=2;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inScaled = false;
+        this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.beach_background, o);
         UI.setLevel(2); // level 2
         UI.setScore(0); // initial score
         UI.setTimer(30); // 30sec
