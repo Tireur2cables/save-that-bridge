@@ -28,6 +28,8 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
     private static int timerCar = 0;
     private static int timerExplosion = 0;
     private static boolean decrTimer = false;
+    private static int timerVal = 10; // 10sec max for validation
+    private static boolean decrTimerVal = false;
     
     public AndroidFastRenderView(Context context, GameWorld gw) {
         super(context);
@@ -134,11 +136,23 @@ public class AndroidFastRenderView extends SurfaceView implements Runnable {
                         this.gameworld.verifLevel();
                         verifLevel = false;
                         timerCar=0;
+                        decrTimerVal = true;
                     }
                 }
             }
 
+            if (decrTimerVal && fpsDeltaTime > 1) {
+                timerVal--;
+                if (timerVal == 0) {
+                    decrTimerVal = false;
+                    verifWin = true;
+                    this.gameworld.verifWin(null, null);
+                }
+            }
+
             if (verifWin) {
+                decrTimerVal = false;
+                timerVal = 10; // default value
                 this.gameworld.removeOldObjects();
                 if (win) {
                     Log.i("------------------", "WIIIIIIIIIIIIIINNNNNNNNNNNNNN");

@@ -206,7 +206,6 @@ public class GameWorld {
             if (event.a instanceof EnclosureGO || event.b instanceof EnclosureGO) {
                 if (event.a instanceof Voiture || event.a instanceof Roue || event.b instanceof Roue || event.b instanceof Voiture) {
                     if (!verified) {
-                        verified = true;
                         this.verifWin(event.a, event.b);
                     }
                 }
@@ -389,14 +388,14 @@ public class GameWorld {
         terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
         this.addGameObject(terrorist);
 
-        construct = 2; // level 1 : 2 construct max
+        construct = 1; // level 1 : 1 construct max
         UI.setPlanks(construct);
 
         reinforcements = new ArrayList<>(construct);
     }
 
     private void level2() {
-        level=2;
+        level = 2;
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.beach_background, o);
@@ -453,11 +452,12 @@ public class GameWorld {
     }
 
     private void level3() {
-        level=3;
+        level = 3;
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.japan_background, o);
         UI.setLevel(3); // level 3
+        UI.setScore(0); // initial score
         UI.setTimer(20); // 30sec
         placing = true;
         /* physic border */
@@ -573,8 +573,9 @@ public class GameWorld {
         rouesJoints[1] = new MyRevoluteJointMotorised(this, voiture.body, roues[1].body, 0, 0, Voiture.width / 2 - Roue.width / 2, Voiture.height / 2);
     }
 
-    private synchronized void verifWin(GameObject a, GameObject b) {
-        AndroidFastRenderView.win = (a instanceof EnclosureGO)? b.body.getPositionY() < 0 : a.body.getPositionY() < 0;
+    synchronized void verifWin(GameObject a, GameObject b) {
+        verified = true;
+        AndroidFastRenderView.win = (a instanceof EnclosureGO)? b.body.getPositionY() < 0 : a != null && a.body.getPositionY() < 0;
         jointsToDestroy.add(rouesJoints[0].joint);
         //rouesJoints[0] = null;
         jointsToDestroy.add(rouesJoints[1].joint);
