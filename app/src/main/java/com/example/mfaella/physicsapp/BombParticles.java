@@ -32,7 +32,6 @@ public class BombParticles extends GameObject
 
     private byte[] particlePositions;
     private ByteBuffer particlePositionsBuffer;
-    private int particleCount;
 
     private final Canvas canvas;
     private final Paint paint = new Paint();
@@ -61,10 +60,10 @@ public class BombParticles extends GameObject
         // NEW:
         groupDef.setGroupFlags(ParticleGroupFlag.solidParticleGroup);
         groupDef.setFlags(ParticleFlag.repulsiveParticle);
+        groupDef.setLifetime(3);
         group = gw.particleSystem.createParticleGroup(groupDef);
-        this.particleCount = group.getParticleCount();
 
-        particlePositionsBuffer = ByteBuffer.allocateDirect(particleCount * BYTESPERPARTICLE);
+        particlePositionsBuffer = ByteBuffer.allocateDirect(this.group.getParticleCount() * BYTESPERPARTICLE);
         particlePositions = particlePositionsBuffer.array();
 
         Log.d("DragMe", "Created " + group.getParticleCount() + " particles");
@@ -79,10 +78,10 @@ public class BombParticles extends GameObject
 
     @Override
     public void draw(Bitmap buffer, float _x, float _y, float _angle) {
-        psys.copyPositionBuffer(0, particleCount, particlePositionsBuffer);
+        psys.copyPositionBuffer(0, this.group.getParticleCount(), particlePositionsBuffer);
 
         paint.setARGB(255, 150, 150, 150);
-        for (int i = 0; i < particleCount/2; i++) {
+        for (int i = 0; i < this.group.getParticleCount() / 2; i++) {
             int xint, yint;
             if (isLittleEndian) {
                 xint = (particlePositions[i * 8 + bufferOffset] & 0xFF) | (particlePositions[i * 8 + bufferOffset + 1] & 0xFF) << 8 |
@@ -101,7 +100,7 @@ public class BombParticles extends GameObject
         }
 
         paint.setARGB(255, 200, 200, 50);
-        for (int i = particleCount/2; i < 4*particleCount/6; i++) {
+        for (int i = this.group.getParticleCount() / 2; i < 4 * this.group.getParticleCount() / 6; i++) {
             int xint, yint;
             if (isLittleEndian) {
                 xint = (particlePositions[i * 8 + bufferOffset] & 0xFF) | (particlePositions[i * 8 + bufferOffset + 1] & 0xFF) << 8 |
@@ -120,7 +119,7 @@ public class BombParticles extends GameObject
         }
 
         paint.setARGB(255, 200, 50, 50);
-        for (int i = 4*particleCount/6; i < 5*particleCount/6; i++) {
+        for (int i = 4 * this.group.getParticleCount() / 6; i < 5 * this.group.getParticleCount() / 6; i++) {
             int xint, yint;
             if (isLittleEndian) {
                 xint = (particlePositions[i * 8 + bufferOffset] & 0xFF) | (particlePositions[i * 8 + bufferOffset + 1] & 0xFF) << 8 |
@@ -139,7 +138,7 @@ public class BombParticles extends GameObject
         }
 
         paint.setARGB(255, 200, 150, 50);
-        for (int i = 5*particleCount/6; i < particleCount; i++) {
+        for (int i = 5 * this.group.getParticleCount() / 6; i < this.group.getParticleCount(); i++) {
             int xint, yint;
             if (isLittleEndian) {
                 xint = (particlePositions[i * 8 + bufferOffset] & 0xFF) | (particlePositions[i * 8 + bufferOffset + 1] & 0xFF) << 8 |

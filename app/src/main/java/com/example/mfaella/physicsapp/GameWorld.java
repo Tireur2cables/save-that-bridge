@@ -114,6 +114,7 @@ public class GameWorld {
 
         // The particle system
         ParticleSystemDef psysdef = new ParticleSystemDef();
+        psysdef.setDestroyByAge(true);
         this.particleSystem = this.world.createParticleSystem(psysdef);
         this.particleSystem.setRadius(PARTICLE_RADIUS);
         this.particleSystem.setMaxParticleCount(MAXPARTICLECOUNT);
