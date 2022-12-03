@@ -21,6 +21,8 @@ public class UI extends GameObject {
     private final Paint paint = new Paint();
     private static int level = 0;
     private static int timer = -1;
+    private static int initialTimer = -1;
+    private static float score = 0;
     private static int plankCounter = 0;
 
     public UI(GameWorld gw) {
@@ -44,7 +46,7 @@ public class UI extends GameObject {
         int color = Color.argb(255, 0, 0, 0);
         this.paint.setColor(color);
         this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.paint.setTextSize(18);
+        this.paint.setTextSize(Math.abs(this.gw.screenSize.ymax / 30 - this.gw.screenSize.ymax / 20));
         this.paint.setTextAlign(Paint.Align.CENTER);
     }
 
@@ -53,6 +55,7 @@ public class UI extends GameObject {
     }
 
     static void setTimer(int t) {
+        initialTimer = t;
         timer = t;
     }
 
@@ -72,6 +75,16 @@ public class UI extends GameObject {
         plankCounter = p;
     }
 
+    static synchronized void addToScore(float a) {
+        float factor = timer / initialTimer;
+        if (factor == 0) factor = 1;
+        score += a * factor;
+    }
+
+    static synchronized void setScore(float s) {
+        score = s;
+    }
+
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
         this.canvas.save();
@@ -79,6 +92,7 @@ public class UI extends GameObject {
         this.canvas.drawText("Planks left : " + plankCounter, this.gw.screenSize.xmax / 30,this.gw.screenSize.ymax / 30, paint);
         this.canvas.drawText("Level : " + level, this.gw.screenSize.xmax / 8,this.gw.screenSize.ymax / 30, paint);
         this.canvas.drawText("Time left : " + ((timer >= 0)? timer + "s" : "∞"), (float) (this.gw.screenSize.xmax / 4.5),this.gw.screenSize.ymax / 30, paint);
+        this.canvas.drawText("Score : " + (int) ((GameWorld.bridgeLength - score) * 1000) + "€", this.gw.screenSize.xmax / 8,this.gw.screenSize.ymax / 20, paint);
         this.canvas.restore();
     }
 }
