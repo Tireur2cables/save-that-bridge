@@ -21,6 +21,7 @@ public class UI extends GameObject {
     private final Paint paint = new Paint();
     private static int level = 0;
     private static int timer = -1;
+    private static int plankCounter = 0;
 
     public UI(GameWorld gw) {
         super(gw);
@@ -43,7 +44,7 @@ public class UI extends GameObject {
         int color = Color.argb(255, 0, 0, 0);
         this.paint.setColor(color);
         this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.paint.setTextSize(Math.abs(this.gw.screenSize.ymax / 30 - this.gw.screenSize.ymax / 20));
+        this.paint.setTextSize(18);
         this.paint.setTextAlign(Paint.Align.CENTER);
     }
 
@@ -63,12 +64,21 @@ public class UI extends GameObject {
         return timer;
     }
 
+    static synchronized void decrPlanks() {
+        plankCounter--;
+    }
+
+    static synchronized void setPlanks(int p) {
+        plankCounter = p;
+    }
+
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
         this.canvas.save();
         this.canvas.rotate((float) Math.toDegrees(angle), x, y);
+        this.canvas.drawText("Planks left : " + plankCounter, this.gw.screenSize.xmax / 30,this.gw.screenSize.ymax / 30, paint);
         this.canvas.drawText("Level : " + level, this.gw.screenSize.xmax / 8,this.gw.screenSize.ymax / 30, paint);
-        this.canvas.drawText("Time left : " + ((timer >= 0)? timer + "s" : "∞"), this.gw.screenSize.xmax / 8,this.gw.screenSize.ymax / 20, paint);
+        this.canvas.drawText("Time left : " + ((timer >= 0)? timer + "s" : "∞"), (float) (this.gw.screenSize.xmax / 4.5),this.gw.screenSize.ymax / 30, paint);
         this.canvas.restore();
     }
 }

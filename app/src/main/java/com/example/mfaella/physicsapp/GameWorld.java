@@ -84,7 +84,6 @@ public class GameWorld {
     static GameObject[] roues = new Roue[2];
     static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
     static boolean verified = false;
-    private static ArrayList<GameObject> constructCounters;
     static int construct = -1;
     private static GameObject buttonReady;
     private static GameObject worldBorder;
@@ -303,9 +302,6 @@ public class GameWorld {
         for (int i = 0; i < myBridge.length; i++) {
             this.removeGameObject(myBridge[i]);
         }
-        for (int i = 0; i < constructCounters.size(); i++) {
-            this.removeGameObject(constructCounters.get(i));
-        }
         for (int i = 0; i < myAnchors.length; i++) {
             this.removeGameObject(myAnchors[i]);
         }
@@ -337,7 +333,7 @@ public class GameWorld {
         placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
-        devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
+        //devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
         /* adding anchors */
         myAnchors = new GameObject[2];
         myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
@@ -378,15 +374,7 @@ public class GameWorld {
         this.addGameObject(terrorist);
 
         construct = 1; // level 1 : 1 construct max
-        float pc_xmin = this.physicalSize.xmin + 1;
-        float pc_xmax = this.physicalSize.xmin + 3;
-        float pc_ymin = this.physicalSize.ymin + 1;
-        float padding = 0.5f;
-        constructCounters = new ArrayList<>(construct);
-        for (int i = 0; i < construct; i++) {
-            float new_ymin = pc_ymin + i * (plankHeight + padding);
-            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + plankHeight)));
-        }
+        UI.setPlanks(construct);
 
         reinforcements = new ArrayList<>(construct);
     }
@@ -397,7 +385,7 @@ public class GameWorld {
         placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
-        devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
+        //devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
         /* adding anchors */
         myAnchors = new GameObject[2];
         myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
@@ -438,26 +426,14 @@ public class GameWorld {
         this.addGameObject(terrorist);
 
         construct = 1; // level 2 : 1 construct max
-        float pc_xmin = this.physicalSize.xmin + 1;
-        float pc_xmax = this.physicalSize.xmin + 3;
-        float pc_ymin = this.physicalSize.ymin + 1;
-        float padding = 0.5f;
-        constructCounters = new ArrayList<>(construct);
-        for (int i = 0; i < construct; i++) {
-            float new_ymin = pc_ymin + i * (plankHeight + padding);
-            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + plankHeight)));
-        }
+        UI.setPlanks(construct);
 
         reinforcements = new ArrayList<>(construct);
     }
 
     public static synchronized void incrConstruct() {
         construct--;
-        if (!constructCounters.isEmpty()) {
-            GameObject g = constructCounters.remove(constructCounters.size() - 1);
-            g.gw.removeGameObject(g);
-            setOldObjectsRemoved(false);
-        }
+        UI.decrPlanks();
     }
 
     public void summonParticles(float x,float y){
@@ -511,8 +487,6 @@ public class GameWorld {
         for (GameObject b : myBridge) {
             ((Bridge) b).has_anchor = true;
         }
-        /* adding button */ // can be ready button
-        buttonReady = this.addGameObject(new Button(this, this.physicalSize.xmax-3, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+3));
     }
 
     public synchronized void verifLevel() {
