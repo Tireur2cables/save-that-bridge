@@ -97,6 +97,7 @@ public class Bombe extends GameObject  {
 
     public synchronized void explode() {
         Music explosion = ExplosionSound.explosion;
+        explosion.stop();
         explosion.play();
         GameWorld.jointsToDestroy.add(this.joint.joint);
         GameWorld.myJoints.remove(this.joint);
