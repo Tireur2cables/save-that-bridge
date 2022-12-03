@@ -130,9 +130,6 @@ public class GameWorld {
 
         this.objects = new ArrayList<>();
         this.canvas = new Canvas(this.buffer);
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inScaled = false;
-        this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.background, o);
         dest = new RectF(); dest.left = 0; dest.bottom = 400; dest.right = 600; dest.top = 0;
 
         bridgeLength = (res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin)) * 2.0f / 3.0f;
@@ -338,6 +335,10 @@ public class GameWorld {
     }
 
     private void level1() {
+        level = 1;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inScaled = false;
+        this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.background, o);
         UI.setLevel(1); // level 1
         UI.setTimer(-1); // infinite timer
         placing = true;
@@ -390,6 +391,10 @@ public class GameWorld {
     }
 
     private void level2() {
+        level=2;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inScaled = false;
+        this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.beach_background, o);
         UI.setLevel(2); // level 2
         UI.setTimer(30); // 30sec
         placing = true;

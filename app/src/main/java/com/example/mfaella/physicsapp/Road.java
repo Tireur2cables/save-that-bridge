@@ -21,8 +21,9 @@ public class Road extends GameObject {
     final float height;
     private static int instances = 0;
     private final Canvas canvas;
-    private final Bitmap bitmap;
+    private Bitmap bitmap;
     private final RectF dest = new RectF();
+    public int level=1;
 
     public Road(GameWorld gw, float xmin, float xmax, float ymin, float ymax) {
         super(gw);
@@ -66,8 +67,22 @@ public class Road extends GameObject {
         box.delete();
     }
 
+    public void change_level(){
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inScaled = false;
+        if (this.level==1){
+            this.level=2;
+            this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.beach_road, o);
+        }
+        else{
+            this.level=1;
+            this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.road, o);
+        }
+    }
+
     @Override
     public void draw(Bitmap buffer, float x, float y, float angle) {
+        if(GameWorld.level !=this.level) this.change_level();
         this.canvas.save();
         this.canvas.drawBitmap(this.bitmap,null,this.dest,null );
         this.canvas.restore();
