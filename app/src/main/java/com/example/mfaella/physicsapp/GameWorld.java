@@ -63,7 +63,7 @@ public class GameWorld {
 
     static int level = 0; // so first level will be 1
 
-    private static float bridgeLength;
+    static float bridgeLength;
 
     static boolean oldObjectsRemoved = true;
     static boolean readyForNextLevel = true;
@@ -344,6 +344,7 @@ public class GameWorld {
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.background, o);
         UI.setLevel(1); // level 1
+        UI.setScore(0); // initial score
         UI.setTimer(-1); // infinite timer
         placing = true;
         /* physic border */
@@ -400,6 +401,7 @@ public class GameWorld {
         o.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.beach_background, o);
         UI.setLevel(2); // level 2
+        UI.setScore(0); // initial score
         UI.setTimer(30); // 30sec
         placing = true;
         /* physic border */
@@ -526,10 +528,6 @@ public class GameWorld {
                 float ha = Anchor.width;
                 float wb = plankWidth;
                 float hb = plankHeight;
-                float dax = (anchor.body.getPositionX() < bridge.body.getPositionX()) ? wa / 2 : -wa / 2;
-                float day = (anchor.body.getPositionY() < bridge.body.getPositionY()) ? ha / 2 : -ha / 2;
-                float dbx = (anchor.body.getPositionX() < bridge.body.getPositionX()) ? -wb / 2 : wb / 2;
-                float dby = (anchor.body.getPositionY() < bridge.body.getPositionY()) ? -hb / 2 : hb / 2;
                 float dist_ab_x = Math.abs(anchor.body.getPositionX() - bridge.body.getPositionX());
                 float dist_ab_y = Math.abs(anchor.body.getPositionY() - bridge.body.getPositionY());
                 float width = (float) Math.sqrt(Math.pow(anchor.body.getPositionX() - bridge.body.getPositionX(), 2) +
@@ -552,6 +550,7 @@ public class GameWorld {
                     }
                     bridge.has_anchor = false;
                     incrConstruct();
+                    UI.addToScore(width);
                 }
             }
         }
