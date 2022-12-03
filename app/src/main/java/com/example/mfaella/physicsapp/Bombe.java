@@ -10,6 +10,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
+import com.badlogic.androidgames.framework.Music;
+import com.badlogic.androidgames.framework.Sound;
 import com.google.fpl.liquidfun.BodyDef;
 import com.google.fpl.liquidfun.BodyType;
 import com.google.fpl.liquidfun.Fixture;
@@ -94,6 +96,8 @@ public class Bombe extends GameObject  {
     }
 
     public synchronized void explode() {
+        Music explosion = ExplosionSound.explosion;
+        explosion.play();
         GameWorld.jointsToDestroy.add(this.joint.joint);
         GameWorld.myJoints.remove(this.joint);
         GameWorld.setOldObjectsRemoved(false);

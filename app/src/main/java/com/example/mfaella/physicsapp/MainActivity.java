@@ -58,7 +58,10 @@ public class MainActivity extends Activity {
         // Sound
         this.audio = new AndroidAudio(this);
         CollisionSounds.init(this.audio);
+        ExplosionSound.init(this.audio);
+        CarSound.init(this.audio);
         this.backgroundMusic = this.audio.newMusic("soundtrack.mp3");
+        this.backgroundMusic.setVolume(0.1f);
         this.backgroundMusic.setLooping(true);
         this.backgroundMusic.play();
 

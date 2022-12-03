@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.badlogic.androidgames.framework.Game;
 import com.badlogic.androidgames.framework.Input;
+import com.badlogic.androidgames.framework.Music;
 import com.badlogic.androidgames.framework.Sound;
 import com.badlogic.androidgames.framework.impl.TouchHandler;
 import com.google.fpl.liquidfun.Body;
@@ -84,6 +85,7 @@ public class GameWorld {
     static ArrayList<Body> bodiesToDestroy = new ArrayList<>();
     private static ArrayList<GameObject> reinforcements;
     static GameObject voiture;
+    Music engine = CarSound.engine;
     static GameObject[] roues = new Roue[2];
     static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
     static boolean verified = false;
@@ -95,10 +97,10 @@ public class GameWorld {
     private static float plankHeight;
     private static float plankWidth;
 
-    final Activity activity; // just for loading bitmaps in game objects
+    final MainActivity activity; // just for loading bitmaps in game objects
 
     // Arguments are in physical simulation units.
-    public GameWorld(Box physicalSize, Box screenSize, Activity theActivity) {
+    public GameWorld(Box physicalSize, Box screenSize, MainActivity theActivity) {
         this.physicalSize = physicalSize;
         this.screenSize = screenSize;
         this.activity = theActivity;
@@ -567,6 +569,7 @@ public class GameWorld {
         placing = false;
         verified = false;
         voiture = this.addGameObject(new Voiture(this, this.physicalSize.xmin + 2, 0));
+        engine.play();
         roues[0] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1));
         roues[1] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1));
         rouesJoints[0] = new MyRevoluteJointMotorised(this, voiture.body, roues[0].body, 0, 0, -Voiture.width / 2 + Roue.width / 2, Voiture.height / 2);
@@ -580,6 +583,7 @@ public class GameWorld {
         jointsToDestroy.add(rouesJoints[1].joint);
         //rouesJoints[1] = null;
         this.removeGameObject(voiture);
+        engine.stop();
         //voiture = null;
         this.removeGameObject(roues[0]);
         //roues[0] = null;
