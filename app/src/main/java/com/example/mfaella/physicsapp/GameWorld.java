@@ -67,14 +67,14 @@ public class GameWorld {
 
     static boolean oldObjectsRemoved = true;
     static boolean readyForNextLevel = true;
-    static int timer=4;
+    static int timer = 4;
     private static boolean placing = true;
 
     // gameobjects
     private static int numRoads;
     private static GameObject[] myRoad;
     private static int numBridgePlank;
-    private static GameObject[] myBridge;
+    static GameObject[] myBridge;
     private static GameObject[] myAnchors;
 
     static Bombe bombe;
@@ -87,13 +87,11 @@ public class GameWorld {
     static GameObject[] roues = new Roue[2];
     static MyRevoluteJointMotorised[] rouesJoints = new MyRevoluteJointMotorised[2];
     static boolean verified = false;
-    private static ArrayList<GameObject> constructCounters;
     static int construct = -1;
     private static GameObject buttonReady;
     private static GameObject worldBorder;
     private static GameObject devCube;
     private static RectF dest;
-    private static  GameObject particules;
     private static float plankHeight;
     private static float plankWidth;
 
@@ -139,6 +137,7 @@ public class GameWorld {
 
         bridgeLength = (res.getInteger(R.integer.world_xmax) - res.getInteger(R.integer.world_xmin)) * 2.0f / 3.0f;
         plankHeight = this.physicalSize.ymax / 30;
+        this.addGameObject(new UI(this));
     }
 
     public synchronized GameObject addGameObject(GameObject obj) {
@@ -313,9 +312,6 @@ public class GameWorld {
         for (int i = 0; i < myBridge.length; i++) {
             this.removeGameObject(myBridge[i]);
         }
-        for (int i = 0; i < constructCounters.size(); i++) {
-            this.removeGameObject(constructCounters.get(i));
-        }
         for (int i = 0; i < myAnchors.length; i++) {
             this.removeGameObject(myAnchors[i]);
         }
@@ -342,10 +338,12 @@ public class GameWorld {
     }
 
     private void level1() {
+        UI.setLevel(1); // level 1
+        UI.setTimer(-1); // infinite timer
         placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
-        devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
+        //devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
         /* adding anchors */
         myAnchors = new GameObject[2];
         myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
@@ -386,24 +384,18 @@ public class GameWorld {
         this.addGameObject(terrorist);
 
         construct = 1; // level 1 : 1 construct max
-        float pc_xmin = this.physicalSize.xmin + 1;
-        float pc_xmax = this.physicalSize.xmin + 3;
-        float pc_ymin = this.physicalSize.ymin + 1;
-        float padding = 0.5f;
-        constructCounters = new ArrayList<>(construct);
-        for (int i = 0; i < construct; i++) {
-            float new_ymin = pc_ymin + i * (plankHeight + padding);
-            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + plankHeight)));
-        }
+        UI.setPlanks(construct);
 
         reinforcements = new ArrayList<>(construct);
     }
 
     private void level2() {
+        UI.setLevel(2); // level 2
+        UI.setTimer(30); // 30sec
         placing = true;
         /* physic border */
         worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
-        devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
+        //devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
         /* adding anchors */
         myAnchors = new GameObject[2];
         myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
@@ -444,31 +436,18 @@ public class GameWorld {
         this.addGameObject(terrorist);
 
         construct = 1; // level 2 : 1 construct max
-        float pc_xmin = this.physicalSize.xmin + 1;
-        float pc_xmax = this.physicalSize.xmin + 3;
-        float pc_ymin = this.physicalSize.ymin + 1;
-        float padding = 0.5f;
-        constructCounters = new ArrayList<>(construct);
-        for (int i = 0; i < construct; i++) {
-            float new_ymin = pc_ymin + i * (plankHeight + padding);
-            constructCounters.add(this.addGameObject(new PlankCounter(this, pc_xmin, pc_xmax, new_ymin, new_ymin + plankHeight)));
-        }
+        UI.setPlanks(construct);
 
         reinforcements = new ArrayList<>(construct);
     }
 
     public static synchronized void incrConstruct() {
         construct--;
-        if (!constructCounters.isEmpty()) {
-            GameObject g = constructCounters.remove(constructCounters.size() - 1);
-            g.gw.removeGameObject(g);
-            setOldObjectsRemoved(false);
-        }
+        UI.decrPlanks();
     }
 
     public void summonParticles(float x,float y){
         BombParticles particles = new BombParticles(this,x,y);
-        particules=particles;
         this.addGameObject(particles);
     }
 
@@ -518,16 +497,11 @@ public class GameWorld {
         for (GameObject b : myBridge) {
             ((Bridge) b).has_anchor = true;
         }
-        /* adding button */ // can be ready button
-        buttonReady = this.addGameObject(new Button(this, this.physicalSize.xmax-3, this.physicalSize.xmax-1, this.physicalSize.ymin+1, this.physicalSize.ymin+3));
     }
 
     public synchronized void verifLevel() {
         placing = false;
         verified = false;
-        for (GameObject b : myBridge) {
-            ((Bridge) b).has_anchor = false;
-        }
         voiture = this.addGameObject(new Voiture(this, this.physicalSize.xmin + 2, 0));
         roues[0] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Roue.width / 2, -1));
         roues[1] = this.addGameObject(new Roue(this, this.physicalSize.xmin + 2 + Voiture.width - Roue.width / 2, -1));
