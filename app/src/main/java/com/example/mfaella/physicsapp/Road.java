@@ -74,6 +74,10 @@ public class Road extends GameObject {
             this.level=2;
             this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.beach_road, o);
         }
+        else if(this.level==2){
+            this.level=3;
+            this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.japan_road, o);
+        }
         else{
             this.level=1;
             this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.road, o);

@@ -291,6 +291,10 @@ public class GameWorld {
                 this.level2();
                 break;
             }
+            case 3 : {
+                this.level3();
+                break;
+            }
             default : {
                 level = 1;
                 this.level1();
@@ -384,7 +388,7 @@ public class GameWorld {
         terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
         this.addGameObject(terrorist);
 
-        construct = 1; // level 1 : 1 construct max
+        construct = 2; // level 1 : 2 construct max
         UI.setPlanks(construct);
 
         reinforcements = new ArrayList<>(construct);
@@ -406,13 +410,13 @@ public class GameWorld {
         myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
         myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
         /* adding roads */
-        numRoads = 2; // level 1 : 2 roads
+        numRoads = 2; // level 2 : 2 roads
         myRoad = new GameObject[numRoads];
         myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
         myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
 
         /* adding bridge */
-        numBridgePlank = 5; // level 2 : 5 planks
+        numBridgePlank = 8; // level 2 : 8 planks
         myBridge = new GameObject[numBridgePlank];
         plankWidth = bridgeLength / numBridgePlank;
 
@@ -435,12 +439,68 @@ public class GameWorld {
         /* bombe + terrorist */
         // working index : 0,1,2,3,4
         // index 5 (last) has road as joint's body B so need to change bombe coords
-        MyRevoluteJoint j = myJoints.get(3); // level 2 : bombe on joint 3
+        MyRevoluteJoint j = myJoints.get(2); // level 2 : bombe on joint 3
         bombe = new Bombe(this, j.joint.getBodyB().getPositionX() - plankWidth / 2, j.joint.getBodyB().getPositionY() + plankHeight / 2, j, this.activity.getResources());
         terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
         this.addGameObject(terrorist);
 
         construct = 1; // level 2 : 1 construct max
+        UI.setPlanks(construct);
+
+        reinforcements = new ArrayList<>(construct);
+    }
+
+    private void level3() {
+        level=3;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inScaled = false;
+        this.bitmap = BitmapFactory.decodeResource(this.activity.getResources(), R.drawable.japan_background, o);
+        UI.setLevel(3); // level 3
+        UI.setTimer(20); // 30sec
+        placing = true;
+        /* physic border */
+        worldBorder = this.addGameObject(new EnclosureGO(this, this.physicalSize.xmin, this.physicalSize.xmax, this.physicalSize.ymin, this.physicalSize.ymax));
+        //devCube = this.addGameObject(new DynamicBoxGO(this, 0, 3)); // just for dev
+        /* adding anchors */
+        myAnchors = new GameObject[2];
+        myAnchors[0] = this.addGameObject(new Anchor(this, -bridgeLength / 2, this.physicalSize.ymax/4));
+        myAnchors[1] = this.addGameObject(new Anchor(this, bridgeLength / 2, this.physicalSize.ymax/4));
+        /* adding roads */
+        numRoads = 2; // level 3 : 2 roads
+        myRoad = new GameObject[numRoads];
+        myRoad[0] = this.addGameObject(new Road(this, this.physicalSize.xmin, -bridgeLength / 2,0, this.physicalSize.ymax));
+        myRoad[1] = this.addGameObject(new Road(this, bridgeLength / 2, this.physicalSize.xmax,0, this.physicalSize.ymax));
+
+        /* adding bridge */
+        numBridgePlank = 11; // level 3 : 11 planks
+        myBridge = new GameObject[numBridgePlank];
+        plankWidth = bridgeLength / numBridgePlank;
+
+        // create planks
+        for (int i = 0; i < myBridge.length; i++) {
+            myBridge[i] = this.addGameObject(new Bridge(this, (-bridgeLength / 2) + (i * plankWidth), 0, plankWidth, plankHeight));
+        }
+
+        // create joints
+        myJoints = new ArrayList<>(numRoads + numBridgePlank);
+        myJoints.add(new MyRevoluteJoint(this, myRoad[0].body, myBridge[0].body, -plankWidth / 2, -plankHeight / 2,
+                ((Road) myRoad[0]).width / 2, -((Road) myRoad[0]).height / 2)); // joint between road and plank
+        for (int i = 0; i < myBridge.length - 1; i++) { // joints between planks
+            myJoints.add(new MyRevoluteJoint(this, myBridge[i].body, myBridge[i + 1].body, -plankWidth / 2, -plankHeight / 2,
+                    plankWidth / 2, -plankHeight / 2));
+        }
+        myJoints.add(new MyRevoluteJoint(this, myBridge[myBridge.length - 1].body, myRoad[1].body, -((Road) myRoad[0]).width / 2, -((Road) myRoad[0]).height / 2,
+                plankWidth / 2, -plankHeight / 2)); // joint between plank and road
+
+        /* bombe + terrorist */
+        // working index : 0,1,2,3,4
+        // index 5 (last) has road as joint's body B so need to change bombe coords
+        MyRevoluteJoint j = myJoints.get(1); // level 3 : bombe on joint 1
+        bombe = new Bombe(this, j.joint.getBodyB().getPositionX() - plankWidth / 2, j.joint.getBodyB().getPositionY() + plankHeight / 2, j, this.activity.getResources());
+        terrorist = new Terrorist(this,this.physicalSize.xmin + 2, -1);
+        this.addGameObject(terrorist);
+
+        construct = 1; // level 3 : 1 construct max
         UI.setPlanks(construct);
 
         reinforcements = new ArrayList<>(construct);

@@ -59,7 +59,7 @@ public class BombParticles extends GameObject
         groupDef.setPosition(x, y);
         // NEW:
         groupDef.setGroupFlags(ParticleGroupFlag.solidParticleGroup);
-        groupDef.setFlags(ParticleFlag.repulsiveParticle);
+        groupDef.setFlags(ParticleFlag.powderParticle);
         groupDef.setLifetime(3);
         group = gw.particleSystem.createParticleGroup(groupDef);
 
