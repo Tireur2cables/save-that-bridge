@@ -65,7 +65,6 @@ public class Bombe extends GameObject  {
         this.bitmap = BitmapFactory.decodeResource(gw.activity.getResources(), R.drawable.bombe, o);
     }
 
-    private final Rect src = null;
     private final RectF dest = new RectF();
     private final Bitmap bitmap;
 
@@ -78,7 +77,7 @@ public class Bombe extends GameObject  {
         this.dest.right = x + screen_semi_width;
         this.dest.top = y - screen_semi_height * 2;
         // Sprite
-        this.canvas.drawBitmap(this.bitmap, this.src, this.dest, null);
+        this.canvas.drawBitmap(this.bitmap, null, this.dest, null);
         if(GameWorld.timer ==3){
             paint.setARGB(255,255,255,0);
             this.canvas.drawText("3",this.gw.screenSize.ymax/4,this.gw.screenSize.ymax/4,paint);
